@@ -3,11 +3,36 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import {
+  createAdminSessionCookie,
+  getAdminCredentials,
+  isAdminCredentialMatch,
+} from "@/lib/admin-session";
 
 export async function signIn(formData: FormData) {
-  const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const role = formData.get("role") === "admin" ? "admin" : "member";
+
+  if (role === "admin") {
+    const username = String(formData.get("username") ?? "").trim();
+
+    if (!username || !password) {
+      redirect("/?error=missing_credentials");
+    }
+
+    if (!getAdminCredentials()) {
+      redirect("/?error=admin_not_configured");
+    }
+
+    if (!isAdminCredentialMatch({ password, username })) {
+      redirect("/?error=invalid_credentials");
+    }
+
+    createAdminSessionCookie(await cookies());
+    redirect("/admin");
+  }
+
+  const email = String(formData.get("email") ?? "").trim();
 
   if (!email || !password) {
     redirect("/?error=missing_credentials");
@@ -21,10 +46,6 @@ export async function signIn(formData: FormData) {
 
   if (error) {
     redirect("/?error=invalid_credentials");
-  }
-
-  if (role === "admin") {
-    redirect("/admin");
   }
 
   redirect("/dashboard");

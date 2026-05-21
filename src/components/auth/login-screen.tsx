@@ -4,8 +4,9 @@ import { TopNav } from "@/components/brand-nav";
 import { signIn } from "@/app/auth/actions";
 
 const errorCopy: Record<string, string> = {
-  missing_credentials: "Ingresa correo y contrasena para continuar.",
+  missing_credentials: "Ingresa usuario o correo y contrasena para continuar.",
   invalid_credentials: "No pudimos iniciar sesion con esos datos.",
+  admin_not_configured: "El acceso admin aun no esta configurado en el servidor.",
   admin_required: "Necesitas una cuenta administradora para entrar al panel.",
 };
 
@@ -96,8 +97,29 @@ function LoginPanel({
 
       <form action={signIn} className="mt-6 space-y-4">
         <input type="hidden" name="role" value={role} />
-        <TextField icon={<Mail size={18} />} label="Correo" name="email" type="email" />
-        <TextField icon={<LockKeyhole size={18} />} label="Contrasena" name="password" type="password" />
+        {role === "admin" ? (
+          <TextField
+            autoComplete="username"
+            icon={<UserRound size={18} />}
+            label="Usuario"
+            name="username"
+          />
+        ) : (
+          <TextField
+            autoComplete="email"
+            icon={<Mail size={18} />}
+            label="Correo"
+            name="email"
+            type="email"
+          />
+        )}
+        <TextField
+          autoComplete="current-password"
+          icon={<LockKeyhole size={18} />}
+          label="Contrasena"
+          name="password"
+          type="password"
+        />
         <button className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]">
           <Dumbbell size={18} />
           {buttonLabel}
@@ -119,11 +141,13 @@ function LoginBadge({ label, value }: { label: string; value: string }) {
 }
 
 function TextField({
+  autoComplete,
   icon,
   label,
   name,
   type = "text",
 }: {
+  autoComplete?: string;
   icon: ReactNode;
   label: string;
   name: string;
@@ -139,7 +163,8 @@ function TextField({
         <input
           name={name}
           type={type}
-          autoComplete={type === "password" ? "current-password" : "email"}
+          autoComplete={autoComplete}
+          required
           className="h-full min-w-0 flex-1 bg-transparent text-sm font-semibold text-white outline-none"
         />
       </div>

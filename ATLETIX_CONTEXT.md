@@ -13,7 +13,7 @@ Main experiences:
 - Public login: separate client/admin login panels, no public signup.
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
 - Protected client dashboard placeholder.
-- Protected admin dashboard: analytics, client list, manual payment flow, membership status, WhatsApp reminder links.
+- Protected admin dashboard: Supabase-backed analytics/client list, env-backed admin login, client creation, Resend welcome/reset email flow, manual payment placeholder, membership status, WhatsApp reminder links.
 - Client detail pages for trainer review.
 
 No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer. Only admins should create client accounts and trigger activation emails later.
@@ -35,6 +35,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/dashboard` protected client dashboard placeholder
 - `/admin` protected trainer/admin dashboard
 - `/clientes/[id]` protected admin client detail page
+- `/reset-password` client password setup/reset page used by emailed Supabase recovery links
 
 ## Important Files
 
@@ -43,11 +44,19 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/demo/page.tsx` seeded visual demo
 - `src/app/dashboard/page.tsx` protected client dashboard placeholder
 - `src/app/admin/page.tsx` protected admin dashboard
+- `src/app/admin/actions.ts` admin server actions for creating client accounts
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/clientes/[id]/page.tsx` client detail page
+- `src/app/reset-password/page.tsx` client password setup/reset page
 - `src/components/auth/login-screen.tsx` shared login UI
+- `src/components/auth/reset-password-form.tsx` password setup/reset form
+- `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
+- `src/lib/admin-session.ts` env-backed admin session cookie helpers
 - `src/lib/auth.ts` server-side auth/role guards
+- `src/lib/email.ts` Resend email helper
+- `src/lib/site.ts` site URL helper for email links
 - `src/lib/atletix-data.ts` seeded demo data
+- `src/utils/supabase/admin.ts` Supabase service role admin client
 - `src/utils/supabase/client.ts` Supabase browser client
 - `src/utils/supabase/server.ts` Supabase server client
 - `src/utils/supabase/middleware.ts` session refresh helper
@@ -60,14 +69,23 @@ Local env lives in `.env.local` and is intentionally ignored by git.
 
 Current app env vars:
 
+- `ATLETIX_ADMIN_USERNAME`
+- `ATLETIX_ADMIN_PASSWORD`
+- `ATLETIX_ADMIN_SESSION_SECRET` optional; when omitted, admin password is used to sign the session cookie
+- `ATLETIX_SITE_URL` optional; defaults to production Vercel URL
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL` optional; defaults to `ATLETIX <onboarding@resend.dev>`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
 Local automation/env helper:
 
 - `VERCEL_TOKEN`
 
 Do not commit `.env.local`.
+
+Admin login is currently env-backed for the first phase. Client login still uses Supabase Auth. The admin dashboard needs `SUPABASE_SERVICE_ROLE_KEY` because the env-backed admin session is not a Supabase Auth session and should read/write protected tables through a server-only service role client.
 
 ## Supabase
 
@@ -91,12 +109,14 @@ The schema in `supabase/schema.sql` includes:
 - motivational_messages
 - achievements
 
-Next backend step:
+Current backend notes:
 
 1. Apply `supabase/schema.sql` in Supabase SQL editor.
-2. Create admin/member records in Supabase Auth and matching `profiles` rows.
-3. Replace seeded data with Supabase reads.
-4. Add server actions for admin creation of clients, activation emails, manual payments, membership dates, routines, and progress.
+2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and client creation.
+3. Add `RESEND_API_KEY` locally and in Vercel for welcome/reset emails.
+4. Ensure Supabase Auth URL settings allow `https://atletix.vercel.app/reset-password`.
+5. Admin creation flow creates a Supabase Auth user, profile row, member row, recovery link, and Resend email.
+6. Manual payments, membership date creation, routines, and progress write actions still need to be connected.
 
 ## Vercel
 
