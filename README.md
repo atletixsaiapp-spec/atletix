@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ATLETIX
 
-## Getting Started
+Responsive web MVP for the ATLETIX gym app.
 
-First, run the development server:
+## Stack
+
+- Next.js App Router
+- TypeScript
+- Tailwind CSS
+- Supabase-ready client setup
+- Manual payment flow for the trainer/admin
+
+## Routes
+
+- `/` - Client dashboard with profile, membership, routine, progress, avatar, and motivation.
+- `/admin` - Trainer dashboard with analytics, manual payments, membership states, WhatsApp reminders, and client list.
+- `/clientes/[id]` - Admin client detail page.
+- `/login` - Login and client registration shell.
+
+## Run Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Supabase Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Create a Supabase project.
+2. Copy `.env.example` to `.env.local`.
+3. Fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+4. Run `supabase/schema.sql` in the Supabase SQL editor.
 
-## Learn More
+The current UI uses seeded data from `src/lib/atletix-data.ts` so the product can be reviewed before live auth and database writes are connected.
 
-To learn more about Next.js, take a look at the following resources:
+## MVP Scope
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- No payment gateway.
+- Payments are confirmed outside the app, then registered manually by admin.
+- No DMs or community feed yet.
+- Phase 2 can add online payments, ranking, challenges, animated avatar, push notifications, and AI motivation.
