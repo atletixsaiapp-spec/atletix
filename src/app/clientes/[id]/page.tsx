@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { StatusBadge, TopNav } from "@/components/brand-nav";
+import { requireAdmin } from "@/lib/auth";
 import {
   formatCurrency,
   formatShortDate,
@@ -34,6 +35,8 @@ export default async function ClientDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
+
   const { id } = await params;
   const member = members.find((item) => item.id === id);
 

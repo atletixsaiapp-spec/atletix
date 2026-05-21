@@ -15,6 +15,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { StatusBadge, TopNav } from "@/components/brand-nav";
+import { requireAdmin } from "@/lib/auth";
 import {
   calculateAdminStats,
   formatCurrency,
@@ -33,7 +34,9 @@ const attentionMembers = members.filter((member) => {
   return status === "expired" || status === "expiring";
 });
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  await requireAdmin();
+
   return (
     <main className="atletix-shell min-h-screen">
       <TopNav active="admin" />

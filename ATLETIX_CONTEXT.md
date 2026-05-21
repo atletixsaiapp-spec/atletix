@@ -10,12 +10,13 @@ The app is Phase 1A: polished UI and Supabase-ready foundation, with real backen
 
 Main experiences:
 
-- Client dashboard: profile, membership status, routine, progress, avatar, motivation.
-- Admin dashboard: analytics, client list, manual payment flow, membership status, WhatsApp reminder links.
+- Public login: separate client/admin login panels, no public signup.
+- Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
+- Protected client dashboard placeholder.
+- Protected admin dashboard: analytics, client list, manual payment flow, membership status, WhatsApp reminder links.
 - Client detail pages for trainer review.
-- Login/register shell.
 
-No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer.
+No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer. Only admins should create client accounts and trigger activation emails later.
 
 ## Stack
 
@@ -28,17 +29,24 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 
 ## Important Routes
 
-- `/` client dashboard
-- `/admin` trainer/admin dashboard
-- `/login` login/register shell
-- `/clientes/[id]` admin client detail page
+- `/` public login
+- `/login` public login
+- `/demo` public seeded visual demo
+- `/dashboard` protected client dashboard placeholder
+- `/admin` protected trainer/admin dashboard
+- `/clientes/[id]` protected admin client detail page
 
 ## Important Files
 
-- `src/app/page.tsx` client dashboard
-- `src/app/admin/page.tsx` admin dashboard
-- `src/app/login/page.tsx` login/register shell
+- `src/app/page.tsx` public login
+- `src/app/login/page.tsx` public login
+- `src/app/demo/page.tsx` seeded visual demo
+- `src/app/dashboard/page.tsx` protected client dashboard placeholder
+- `src/app/admin/page.tsx` protected admin dashboard
+- `src/app/auth/actions.ts` auth server actions
 - `src/app/clientes/[id]/page.tsx` client detail page
+- `src/components/auth/login-screen.tsx` shared login UI
+- `src/lib/auth.ts` server-side auth/role guards
 - `src/lib/atletix-data.ts` seeded demo data
 - `src/utils/supabase/client.ts` Supabase browser client
 - `src/utils/supabase/server.ts` Supabase server client
@@ -86,9 +94,9 @@ The schema in `supabase/schema.sql` includes:
 Next backend step:
 
 1. Apply `supabase/schema.sql` in Supabase SQL editor.
-2. Wire auth to `/login`.
+2. Create admin/member records in Supabase Auth and matching `profiles` rows.
 3. Replace seeded data with Supabase reads.
-4. Add server actions for admin creation of clients, manual payments, membership dates, routines, and progress.
+4. Add server actions for admin creation of clients, activation emails, manual payments, membership dates, routines, and progress.
 
 ## Vercel
 
@@ -124,6 +132,23 @@ printf '%s' "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" | vercel env add NEXT_PUBLIC
 Repeat for `preview` and `development` when needed.
 
 If a variable already exists, remove/update it intentionally instead of blindly adding duplicates.
+
+Current linked Vercel project:
+
+```text
+shaquille-s-projects1/atletix
+```
+
+Production URL:
+
+```text
+https://atletix.vercel.app
+```
+
+Project settings fixed previously:
+
+- Framework preset set to Next.js.
+- Vercel deployment authentication disabled for public access.
 
 ## GitHub
 

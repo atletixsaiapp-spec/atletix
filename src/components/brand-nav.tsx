@@ -5,7 +5,7 @@ import { getStatusLabel } from "@/lib/atletix-data";
 export function TopNav({
   active,
 }: {
-  active: "clienta" | "admin" | "login";
+  active: "clienta" | "admin" | "demo" | "login";
 }) {
   return (
     <header className="sticky top-0 z-30 border-b border-white/10 bg-[#07070a]/82 backdrop-blur-xl">
@@ -23,9 +23,9 @@ export function TopNav({
         </Link>
 
         <nav className="flex items-center gap-2">
-          <NavLink href="/" label="Clienta" active={active === "clienta"} />
+          <NavLink href="/" label="Login" active={active === "login"} />
+          <NavLink href="/demo" label="Demo" active={active === "demo"} />
           <NavLink href="/admin" label="Admin" active={active === "admin"} />
-          <NavLink href="/login" label="Login" active={active === "login"} />
         </nav>
       </div>
     </header>
