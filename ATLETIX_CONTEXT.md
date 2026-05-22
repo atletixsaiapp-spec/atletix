@@ -13,8 +13,9 @@ Main experiences:
 - Public client login, separate simple admin login, no public signup.
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
 - Protected client dashboard placeholder.
-- Protected admin dashboard: Supabase-backed analytics/client list, env-backed admin login, client creation, Resend welcome/reset email flow, manual payment placeholder, membership status, WhatsApp reminder links.
-- Client detail pages for trainer review.
+- Protected admin dashboard: Supabase-backed analytics/client preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
+- Protected client listing page: full client list plus trainer-only client account creation and Resend welcome/reset email flow.
+- Client detail pages for trainer review and management: edit client profile, activate/revoke membership, add manual payments, view payments, progress, routine, attendance, and charts.
 
 No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer. Only admins should create client accounts and trigger activation emails later.
 
@@ -60,13 +61,17 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/admin/actions.ts` admin server actions for creating client accounts
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/clientes/[id]/page.tsx` client detail page
+- `src/app/clientes/[id]/actions.ts` client detail server actions for editing, membership control, and manual payments
 - `src/app/reset-password/page.tsx` client password setup/reset page
 - `src/components/auth/login-screen.tsx` client/admin login screen components
 - `src/components/auth/reset-password-form.tsx` password setup/reset form
+- `src/components/ui/atoms/admin-notice.tsx` shared admin notice component
+- `src/components/ui/atoms/profile-metric.tsx` shared metric card component
 - `src/components/ui/atoms/*` reusable small UI pieces such as brand logo, nav links, status badge
 - `src/components/ui/icons/*` shared icon exports
 - `src/components/ui/organisms/*` reusable larger UI pieces such as top nav and admin member table
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
+- `src/lib/admin-member-detail.ts` Supabase-backed client detail loader and derived metrics
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers
 - `src/lib/auth.ts` server-side auth/role guards
 - `src/lib/email.ts` Resend email helper
@@ -132,7 +137,8 @@ Current backend notes:
 3. Add `RESEND_API_KEY` locally and in Vercel for welcome/reset emails.
 4. Ensure Supabase Auth URL settings allow `https://atletix.vercel.app/reset-password`.
 5. Admin creation flow creates a Supabase Auth user, profile row, member row, recovery link, and Resend email.
-6. Manual payments, membership date creation, routines, and progress write actions still need to be connected.
+6. Client detail supports manual payment insertion and membership activation/revocation through server actions.
+7. Gender is not yet stored in the database schema, so the detail UI currently shows it as `No registrado`.
 
 ## Vercel
 

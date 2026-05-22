@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -12,199 +11,460 @@ import {
   Medal,
   Ruler,
   Scale,
-  Sparkles,
+  ShieldCheck,
+  UsersRound,
 } from "lucide-react";
+import { AdminNotice } from "@/components/ui/atoms/admin-notice";
+import { ProfileMetric } from "@/components/ui/atoms/profile-metric";
 import { StatusBadge } from "@/components/ui/atoms/status-badge";
-import { TopNav } from "@/components/ui/organisms/top-nav";
-import { requireAdmin } from "@/lib/auth";
 import {
-  formatCurrency,
-  formatShortDate,
-  getMembershipStatus,
-  getPaymentsForMember,
-  getProgressPercent,
-  getRoutineForMember,
-  members,
-} from "@/lib/atletix-data";
+  AttendanceChart,
+  WeightChart,
+} from "@/components/ui/organisms/member-detail-charts";
+import {
+  EditMemberProfileForm,
+  ManualPaymentForm,
+  MembershipActionForms,
+} from "@/components/ui/organisms/member-management-forms";
+import { TopNav } from "@/components/ui/organisms/top-nav";
+import {
+  activateMemberMembership,
+  addManualPayment,
+  revokeMemberMembership,
+  updateMemberProfile,
+} from "@/app/clientes/[id]/actions";
+import {
+  addOneMonth,
+  dateKey,
+  getAdminMemberDetail,
+} from "@/lib/admin-member-detail";
+import { requireAdmin } from "@/lib/auth";
+import { formatCurrency, formatShortDate } from "@/lib/atletix-data";
 
-export function generateStaticParams() {
-  return members.map((member) => ({ id: member.id }));
-}
+const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
+  invalid_member_update: {
+    body: "Revisa los datos de la clienta antes de guardar.",
+    tone: "error",
+  },
+  invalid_membership_dates: {
+    body: "Las fechas de membresia no son validas.",
+    tone: "error",
+  },
+  invalid_payment: {
+    body: "Revisa el valor, fechas y metodo del pago manual.",
+    tone: "error",
+  },
+  member_updated: {
+    body: "Ficha de clienta actualizada.",
+    tone: "success",
+  },
+  member_update_failed: {
+    body: "No se pudo actualizar la ficha de la clienta.",
+    tone: "error",
+  },
+  membership_activated: {
+    body: "Membresia activada.",
+    tone: "success",
+  },
+  membership_activate_failed: {
+    body: "No se pudo activar la membresia.",
+    tone: "error",
+  },
+  membership_revoked: {
+    body: "Membresia revocada.",
+    tone: "warning",
+  },
+  membership_revoke_failed: {
+    body: "No se pudo revocar la membresia.",
+    tone: "error",
+  },
+  missing_supabase_admin: {
+    body: "Falta SUPABASE_SERVICE_ROLE_KEY para gestionar clientas reales.",
+    tone: "error",
+  },
+  payment_added: {
+    body: "Pago manual registrado y membresia actualizada.",
+    tone: "success",
+  },
+  payment_failed: {
+    body: "No se pudo registrar el pago manual.",
+    tone: "error",
+  },
+  payment_membership_failed: {
+    body: "Pago registrado, pero no se pudo activar el periodo de membresia.",
+    tone: "warning",
+  },
+  profile_update_failed: {
+    body: "La ficha se guardo parcialmente, pero no se pudo actualizar el perfil de acceso.",
+    tone: "warning",
+  },
+};
 
 export default async function ClientDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ notice?: string }>;
 }) {
   await requireAdmin();
 
-  const { id } = await params;
-  const member = members.find((item) => item.id === id);
+  const [{ id }, { notice }] = await Promise.all([params, searchParams]);
+  const detailResult = await getAdminMemberDetail(id);
+  const noticeConfig = notice ? noticeCopy[notice] : null;
 
-  if (!member) {
+  if (!detailResult.member) {
+    if (detailResult.setupMessage) {
+      return (
+        <main className="atletix-shell min-h-screen">
+          <TopNav active="admin" />
+          <section className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+            <BackLink />
+            <div className="mt-6">
+              <AdminNotice body={detailResult.setupMessage} tone="warning" />
+            </div>
+          </section>
+        </main>
+      );
+    }
+
     notFound();
   }
 
-  const routine = getRoutineForMember(member.id);
-  const memberPayments = getPaymentsForMember(member.id);
-  const status = getMembershipStatus(member);
-  const latest = member.progress[member.progress.length - 1];
+  const detail = detailResult.member;
+  const member = detail.member;
+  const today = new Date();
+  const todayKey = dateKey(today);
+  const defaultStart =
+    detail.membership?.endDate && detail.membership.endDate > todayKey
+      ? detail.membership.endDate
+      : todayKey;
+  const defaultEnd = dateKey(addOneMonth(new Date(`${defaultStart}T12:00:00-05:00`)));
+  const latestProgress = detail.progress[detail.progress.length - 1];
 
   return (
     <main className="atletix-shell min-h-screen">
       <TopNav active="admin" />
 
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Link
-          href="/admin"
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
-        >
-          <ArrowLeft size={16} />
-          Volver al admin
-        </Link>
+        <BackLink />
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[0.85fr_1.35fr]">
+        <div className="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.35fr]">
           <aside className="space-y-6">
             <section className="glass-panel rounded-3xl p-5 sm:p-6">
-              <div className="flex items-center gap-4">
-                <div className="avatar-aura grid size-20 place-items-center rounded-full border border-[#ff2fa8]/50 bg-[#ff2fa8]/10 text-2xl font-black text-white">
+              <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center">
+                <div className="avatar-aura grid size-20 shrink-0 place-items-center rounded-full border border-[#ff2fa8]/50 bg-[#ff2fa8]/10 text-2xl font-black text-white">
                   {member.initials}
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#ff8bd8]">
                     Ficha clienta
                   </p>
-                  <h1 className="mt-1 text-3xl font-black text-white">{member.name}</h1>
-                  <p className="mt-1 text-sm text-zinc-400">{member.email}</p>
+                  <h1 className="mt-1 break-words text-3xl font-black text-white">
+                    {member.name}
+                  </h1>
+                  <p className="mt-1 break-words text-sm text-zinc-400">
+                    {member.email}
+                  </p>
                 </div>
               </div>
 
+              <div className="mt-6 flex flex-wrap gap-2">
+                {detail.membership ? (
+                  <StatusBadge status={detail.membership.status} />
+                ) : (
+                  <span className="rounded-full border border-red-300/30 bg-red-400/10 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-red-200">
+                    Sin membresia
+                  </span>
+                )}
+                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-zinc-300">
+                  {member.isActive ? "Cuenta activa" : "Cuenta pausada"}
+                </span>
+              </div>
+
               <div className="mt-6 grid grid-cols-2 gap-3">
-                <ProfileMetric icon={<Scale size={18} />} label="Peso" value={`${member.currentWeightKg} kg`} />
-                <ProfileMetric icon={<Ruler size={18} />} label="Estatura" value={`${member.heightCm} cm`} />
-                <ProfileMetric icon={<Sparkles size={18} />} label="XP" value={`${member.xp}`} />
-                <ProfileMetric icon={<Flame size={18} />} label="Racha" value={`${member.streakDays} dias`} />
+                <ProfileMetric
+                  icon={<CalendarDays size={18} />}
+                  label="Edad"
+                  value={member.age === null ? "--" : `${member.age}`}
+                />
+                <ProfileMetric
+                  icon={<UsersRound size={18} />}
+                  label="Genero"
+                  value={detail.gender}
+                />
+                <ProfileMetric
+                  icon={<Scale size={18} />}
+                  label="Peso"
+                  value={formatNumber(member.currentWeightKg, "kg")}
+                  detail={
+                    detail.stats.weightChangeKg === null
+                      ? "Sin comparacion"
+                      : `${detail.stats.weightChangeKg > 0 ? "+" : ""}${detail.stats.weightChangeKg} kg`
+                  }
+                />
+                <ProfileMetric
+                  icon={<Ruler size={18} />}
+                  label="Estatura"
+                  value={formatNumber(member.heightCm, "cm")}
+                />
+                <ProfileMetric
+                  icon={<Flame size={18} />}
+                  label="Racha"
+                  value={`${member.streakDays} dias`}
+                />
+                <ProfileMetric
+                  icon={<ShieldCheck size={18} />}
+                  label="Nivel"
+                  value={member.level}
+                  detail={`${member.xp} XP`}
+                />
               </div>
             </section>
 
             <section className="glass-panel rounded-3xl p-5 sm:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                    Membresia
-                  </p>
-                  <h2 className="mt-1 text-2xl font-black text-white">
-                    {formatShortDate(member.membershipEnd)}
-                  </h2>
-                </div>
-                <StatusBadge status={status} />
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                  Membresia
+                </p>
+                <h2 className="mt-1 text-2xl font-black text-white">
+                  {detail.membership
+                    ? formatShortDate(detail.membership.endDate)
+                    : "Sin periodo activo"}
+                </h2>
               </div>
-              <div className="mt-5 space-y-3">
-                {memberPayments.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-4"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="font-black text-white">{formatCurrency(payment.amount)}</p>
-                      <Banknote className="text-[#ff8bd8]" size={18} />
-                    </div>
-                    <p className="mt-2 text-sm text-zinc-500">
-                      {payment.method} - {formatShortDate(payment.paidAt)}
-                    </p>
-                  </div>
-                ))}
+
+              <div className="mt-5 grid gap-3 text-sm">
+                <InfoRow
+                  label="Inicio"
+                  value={
+                    detail.membership
+                      ? formatShortDate(detail.membership.startDate)
+                      : "--"
+                  }
+                />
+                <InfoRow
+                  label="Vence"
+                  value={
+                    detail.membership
+                      ? formatShortDate(detail.membership.endDate)
+                      : "--"
+                  }
+                />
+                <InfoRow
+                  label="Ultimo pago"
+                  value={
+                    detail.stats.lastPaymentCop
+                      ? formatCurrency(detail.stats.lastPaymentCop)
+                      : "--"
+                  }
+                />
               </div>
             </section>
           </aside>
 
           <div className="space-y-6">
+            {noticeConfig ? <AdminNotice {...noticeConfig} /> : null}
+            {detailResult.setupMessage ? (
+              <AdminNotice body={detailResult.setupMessage} tone="warning" />
+            ) : null}
+
+            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <ProfileMetric
+                icon={<HeartPulse size={18} />}
+                label="Asistencia semana"
+                value={`${detail.stats.attendanceWeek}`}
+                detail="entrenos registrados"
+              />
+              <ProfileMetric
+                icon={<Medal size={18} />}
+                label="Asistencia mes"
+                value={`${detail.stats.attendanceMonth}`}
+                detail="entrenos este mes"
+              />
+              <ProfileMetric
+                icon={<Banknote size={18} />}
+                label="Total pagado"
+                value={formatCurrency(detail.stats.totalPaidCop)}
+              />
+              <ProfileMetric
+                icon={<LineChart size={18} />}
+                label="Check-ins"
+                value={`${detail.stats.progressEntries}`}
+                detail={
+                  latestProgress ? formatShortDate(latestProgress.date) : "Sin progreso"
+                }
+              />
+            </section>
+
             <section className="glass-panel rounded-3xl p-5 sm:p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                  Editar ficha
+                </p>
+                <h2 className="mt-1 text-2xl font-black text-white">
+                  Datos de la clienta
+                </h2>
+              </div>
+              <div className="mt-5">
+                <EditMemberProfileForm
+                  action={updateMemberProfile}
+                  detail={detail}
+                />
+              </div>
+            </section>
+
+            <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6">
                 <div>
                   <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                    Rutina asignada
+                    Control
                   </p>
-                  <h2 className="mt-1 text-3xl font-black text-white">{routine.name}</h2>
-                  <p className="mt-2 text-zinc-400">{routine.coachNotes}</p>
+                  <h2 className="mt-1 text-2xl font-black text-white">
+                    Membresia
+                  </h2>
                 </div>
-                <span className="rounded-full bg-[#ff2fa8] px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-white">
-                  {routine.day}
-                </span>
+                <div className="mt-5">
+                  <MembershipActionForms
+                    activateAction={activateMemberMembership}
+                    defaultEnd={defaultEnd}
+                    defaultStart={defaultStart}
+                    memberId={member.id}
+                    revokeAction={revokeMemberMembership}
+                  />
+                </div>
               </div>
 
-              <div className="mt-5 grid gap-3">
-                {routine.exercises.map((exercise) => (
-                  <div
-                    key={exercise.name}
-                    className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:grid-cols-[1fr_auto]"
-                  >
-                    <div className="flex items-start gap-3">
-                      <Dumbbell className="mt-1 text-[#ff2fa8]" size={18} />
-                      <div>
-                        <p className="font-black text-white">{exercise.name}</p>
-                        <p className="text-sm text-zinc-500">{exercise.note}</p>
-                      </div>
-                    </div>
-                    <p className="font-mono text-sm text-zinc-300">
-                      {exercise.sets} x {exercise.reps} / {exercise.load}
-                    </p>
-                  </div>
-                ))}
+              <div className="glass-panel rounded-3xl p-5 sm:p-6">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    Pagos
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black text-white">
+                    Agregar pago manual
+                  </h2>
+                </div>
+                <div className="mt-5">
+                  <ManualPaymentForm
+                    action={addManualPayment}
+                    defaultEnd={defaultEnd}
+                    defaultPaidAt={todayKey}
+                    defaultStart={defaultStart}
+                    memberId={member.id}
+                  />
+                </div>
               </div>
             </section>
 
             <section className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
               <div className="glass-panel rounded-3xl p-5 sm:p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
                       Evolucion
                     </p>
                     <h2 className="mt-1 text-2xl font-black text-white">
-                      Medidas y peso
+                      Peso registrado
                     </h2>
                   </div>
-                  <LineChart className="text-[#ff8bd8]" size={24} />
+                  <LineChart className="shrink-0 text-[#ff8bd8]" size={24} />
+                </div>
+                <WeightChart entries={detail.progress} />
+              </div>
+
+              <div className="glass-panel rounded-3xl p-5 sm:p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                      Asistencia
+                    </p>
+                    <h2 className="mt-1 text-2xl font-black text-white">
+                      Ultimos 7 dias
+                    </h2>
+                  </div>
+                  <HeartPulse className="shrink-0 text-emerald-300" size={24} />
+                </div>
+                <AttendanceChart entries={detail.attendanceChart} />
+              </div>
+            </section>
+
+            <section className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
+              <div className="glass-panel rounded-3xl p-5 sm:p-6">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    Rutina
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black text-white">
+                    {detail.routine?.name ?? "Sin rutina asignada"}
+                  </h2>
+                  <p className="mt-2 text-sm text-zinc-500">
+                    {detail.routine?.coachNotes ?? "Asigna una rutina para esta clienta."}
+                  </p>
                 </div>
 
-                <div className="mt-6 flex h-56 items-end gap-3">
-                  {member.progress.map((entry) => {
-                    const height = 44 + (entry.weightKg - member.initialWeightKg + 3) * 20;
-
-                    return (
-                      <div key={entry.date} className="flex flex-1 flex-col items-center gap-2">
-                        <div
-                          className="w-full rounded-t-xl bg-gradient-to-t from-[#ff2fa8] to-[#ff8bd8]"
-                          style={{ height: `${height}px` }}
-                        />
-                        <span className="font-mono text-xs text-zinc-500">
-                          {entry.weightKg}
-                        </span>
+                <div className="mt-5 grid gap-3">
+                  {detail.routine?.exercises.length ? (
+                    detail.routine.exercises.map((exercise) => (
+                      <div
+                        key={exercise.id}
+                        className="grid gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:grid-cols-[1fr_auto]"
+                      >
+                        <div className="flex items-start gap-3">
+                          <Dumbbell className="mt-1 text-[#ff2fa8]" size={18} />
+                          <div>
+                            <p className="font-black text-white">{exercise.name}</p>
+                            <p className="text-sm text-zinc-500">
+                              {exercise.coachNote}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="font-mono text-sm text-zinc-300">
+                          {exercise.sets} x {exercise.reps} / {exercise.load}
+                        </p>
                       </div>
-                    );
-                  })}
+                    ))
+                  ) : (
+                    <EmptyPanel message="Sin ejercicios asignados." />
+                  )}
                 </div>
               </div>
 
               <div className="glass-panel rounded-3xl p-5 sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                      Check-in
-                    </p>
-                    <h2 className="mt-1 text-2xl font-black text-white">
-                      Ultimo registro
-                    </h2>
-                  </div>
-                  <HeartPulse className="text-emerald-300" size={24} />
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    Pagos recientes
+                  </p>
+                  <h2 className="mt-1 text-2xl font-black text-white">
+                    Historial
+                  </h2>
                 </div>
 
-                <div className="mt-5 grid grid-cols-2 gap-3">
-                  <ProfileMetric icon={<Scale size={18} />} label="Peso" value={`${latest.weightKg} kg`} />
-                  <ProfileMetric icon={<Ruler size={18} />} label="Cintura" value={`${latest.waistCm} cm`} />
-                  <ProfileMetric icon={<Medal size={18} />} label="Cadera" value={`${latest.hipCm} cm`} />
-                  <ProfileMetric icon={<CalendarDays size={18} />} label="Semana" value={`${getProgressPercent(member)}%`} />
+                <div className="mt-5 grid gap-3">
+                  {detail.payments.length ? (
+                    detail.payments.slice(0, 5).map((payment) => (
+                      <div
+                        key={payment.id}
+                        className="rounded-2xl border border-white/10 bg-white/[0.035] p-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-black text-white">
+                            {formatCurrency(payment.amountCop)}
+                          </p>
+                          <Banknote className="text-[#ff8bd8]" size={18} />
+                        </div>
+                        <p className="mt-2 text-sm text-zinc-500">
+                          {formatPaymentMethod(payment.method)} -{" "}
+                          {formatShortDate(payment.paidAt)}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-600">
+                          {formatShortDate(payment.periodStart)} a{" "}
+                          {formatShortDate(payment.periodEnd)}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <EmptyPanel message="Sin pagos registrados." />
+                  )}
                 </div>
               </div>
             </section>
@@ -215,22 +475,47 @@ export default async function ClientDetailPage({
   );
 }
 
-function ProfileMetric({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
+function BackLink() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
-      <div className="text-[#ff8bd8]">{icon}</div>
-      <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-zinc-500">
-        {label}
-      </p>
-      <p className="metric-number mt-1 text-lg font-black text-white">{value}</p>
+    <Link
+      href="/admin/clientas"
+      className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
+    >
+      <ArrowLeft size={16} />
+      Volver a clientas
+    </Link>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-2xl bg-black/25 p-3">
+      <span className="text-zinc-500">{label}</span>
+      <span className="text-right font-black text-white">{value}</span>
     </div>
   );
+}
+
+function EmptyPanel({ message }: { message: string }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-white/10 p-5 text-center text-sm text-zinc-500">
+      {message}
+    </div>
+  );
+}
+
+function formatNumber(value: number | null, suffix: string) {
+  return value === null ? "--" : `${value} ${suffix}`;
+}
+
+function formatPaymentMethod(method: string) {
+  const labels: Record<string, string> = {
+    cash: "Efectivo",
+    daviplata: "Daviplata",
+    nequi: "Nequi",
+    other: "Otro",
+    transfer: "Transferencia",
+  };
+
+  return labels[method] ?? method;
 }
