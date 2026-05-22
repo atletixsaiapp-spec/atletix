@@ -125,7 +125,7 @@ export default async function AdminPage({
                 Estado de membresias
               </h2>
             </div>
-            <div className="flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-zinc-400">
+            <div className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-zinc-400 sm:w-auto">
               <Search size={17} />
               <span className="text-sm">Datos reales de Supabase</span>
             </div>
@@ -133,10 +133,10 @@ export default async function AdminPage({
 
           <AdminMembersTable members={previewMembers} />
 
-          <div className="flex justify-end border-t border-white/10 p-5">
+          <div className="flex border-t border-white/10 p-5 sm:justify-end">
             <Link
               href="/admin/clientas"
-              className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200"
+              className="inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200 sm:w-auto"
             >
               Ver todo
             </Link>

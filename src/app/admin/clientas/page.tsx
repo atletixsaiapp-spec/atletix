@@ -16,13 +16,15 @@ export default async function AdminClientsPage() {
       <TopNav active="admin" />
 
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <Link
-          href="/admin"
-          className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
-        >
-          <ArrowLeft size={16} />
-          Volver al panel
-        </Link>
+        <div className="flex">
+          <Link
+            href="/admin"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
+          >
+            <ArrowLeft size={16} />
+            Volver al panel
+          </Link>
+        </div>
 
         <div className="mt-6 pb-6">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#ff8bd8]">
@@ -49,7 +51,7 @@ export default async function AdminClientsPage() {
                 {dashboard.members.length} clientas
               </h2>
             </div>
-            <div className="flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-zinc-400">
+            <div className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-zinc-400 sm:w-auto">
               <Search size={17} />
               <span className="text-sm">Datos reales de Supabase</span>
             </div>
