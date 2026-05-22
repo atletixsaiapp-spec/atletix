@@ -52,6 +52,9 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/reset-password/page.tsx` client password setup/reset page
 - `src/components/auth/login-screen.tsx` client/admin login screen components
 - `src/components/auth/reset-password-form.tsx` password setup/reset form
+- `src/components/ui/atoms/*` reusable small UI pieces such as brand logo, nav links, status badge
+- `src/components/ui/icons/*` shared icon exports
+- `src/components/ui/organisms/top-nav.tsx` reusable responsive top nav with mobile drawer
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers
 - `src/lib/auth.ts` server-side auth/role guards

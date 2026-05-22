@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Dumbbell, KeyRound, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
-import { TopNav } from "@/components/brand-nav";
 import { signIn } from "@/app/auth/actions";
+import { TopNav } from "@/components/ui/organisms/top-nav";
 
 const errorCopy: Record<string, string> = {
   missing_credentials: "Ingresa usuario o correo y contrasena para continuar.",

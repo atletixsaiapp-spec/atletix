@@ -15,7 +15,8 @@ import {
   UsersRound,
 } from "lucide-react";
 import { createMemberAccount } from "@/app/admin/actions";
-import { StatusBadge, TopNav } from "@/components/brand-nav";
+import { StatusBadge } from "@/components/ui/atoms/status-badge";
+import { TopNav } from "@/components/ui/organisms/top-nav";
 import {
   type AdminDashboardMember,
   getAdminDashboardData,

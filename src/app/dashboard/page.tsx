@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Dumbbell, MailCheck } from "lucide-react";
-import { TopNav } from "@/components/brand-nav";
+import { TopNav } from "@/components/ui/organisms/top-nav";
 import { requireUser } from "@/lib/auth";
 
 export default async function DashboardPage() {

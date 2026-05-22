@@ -1,5 +1,5 @@
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
-import { TopNav } from "@/components/brand-nav";
+import { TopNav } from "@/components/ui/organisms/top-nav";
 
 export default function ResetPasswordPage() {
   return (
