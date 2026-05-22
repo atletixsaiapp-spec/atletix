@@ -1,4 +1,4 @@
-import { LoginScreen } from "@/components/auth/login-screen";
+import { ClientLoginScreen } from "@/components/auth/login-screen";
 
 export default async function LoginPage({
   searchParams,
@@ -7,5 +7,5 @@ export default async function LoginPage({
 }) {
   const { error } = await searchParams;
 
-  return <LoginScreen error={error} />;
+  return <ClientLoginScreen error={error} />;
 }

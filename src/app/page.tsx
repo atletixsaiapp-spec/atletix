@@ -1,11 +1,5 @@
-import { LoginScreen } from "@/components/auth/login-screen";
+import { redirect } from "next/navigation";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
-
-  return <LoginScreen error={error} />;
+export default function Home() {
+  redirect("/login");
 }

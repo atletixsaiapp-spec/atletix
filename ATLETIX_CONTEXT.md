@@ -10,7 +10,7 @@ The app is Phase 1A: polished UI and Supabase-ready foundation, with real backen
 
 Main experiences:
 
-- Public login: separate client/admin login panels, no public signup.
+- Public client login, separate simple admin login, no public signup.
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
 - Protected client dashboard placeholder.
 - Protected admin dashboard: Supabase-backed analytics/client list, env-backed admin login, client creation, Resend welcome/reset email flow, manual payment placeholder, membership status, WhatsApp reminder links.
@@ -29,8 +29,9 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 
 ## Important Routes
 
-- `/` public login
-- `/login` public login
+- `/` redirects to `/login`
+- `/login` public client login
+- `/admin/login` public admin login
 - `/demo` public seeded visual demo
 - `/dashboard` protected client dashboard placeholder
 - `/admin` protected trainer/admin dashboard
@@ -39,8 +40,9 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 
 ## Important Files
 
-- `src/app/page.tsx` public login
-- `src/app/login/page.tsx` public login
+- `src/app/page.tsx` redirects to client login
+- `src/app/login/page.tsx` public client login
+- `src/app/admin/login/page.tsx` public admin login
 - `src/app/demo/page.tsx` seeded visual demo
 - `src/app/dashboard/page.tsx` protected client dashboard placeholder
 - `src/app/admin/page.tsx` protected admin dashboard
@@ -48,7 +50,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/clientes/[id]/page.tsx` client detail page
 - `src/app/reset-password/page.tsx` client password setup/reset page
-- `src/components/auth/login-screen.tsx` shared login UI
+- `src/components/auth/login-screen.tsx` client/admin login screen components
 - `src/components/auth/reset-password-form.tsx` password setup/reset form
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers

@@ -10,7 +10,7 @@ const errorCopy: Record<string, string> = {
   admin_required: "Necesitas una cuenta administradora para entrar al panel.",
 };
 
-export function LoginScreen({ error }: { error?: string }) {
+export function ClientLoginScreen({ error }: { error?: string }) {
   return (
     <main className="atletix-shell min-h-screen">
       <TopNav active="login" />
@@ -41,18 +41,12 @@ export function LoginScreen({ error }: { error?: string }) {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="mx-auto w-full max-w-lg">
           <LoginPanel
             role="member"
             title="Clienta"
             subtitle="Entra con la cuenta activada por ATLETIX."
             icon={<UserRound size={22} />}
-          />
-          <LoginPanel
-            role="admin"
-            title="Admin"
-            subtitle="Panel privado para entrenador y administracion."
-            icon={<ShieldCheck size={22} />}
           />
         </div>
 
@@ -61,6 +55,43 @@ export function LoginScreen({ error }: { error?: string }) {
             {errorCopy[error] ?? "No pudimos completar el acceso."}
           </div>
         ) : null}
+      </section>
+    </main>
+  );
+}
+
+export function AdminLoginScreen({ error }: { error?: string }) {
+  return (
+    <main className="atletix-shell min-h-screen">
+      <TopNav active="admin" />
+
+      <section className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-xl items-center px-4 py-8 sm:px-6">
+        <div className="w-full">
+          <div className="mb-5">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#ff8bd8]">
+              ATLETIX Admin
+            </p>
+            <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-4xl">
+              Acceso entrenador
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-zinc-400">
+              Panel privado para crear clientas, revisar pagos y controlar el gimnasio.
+            </p>
+          </div>
+
+          <LoginPanel
+            role="admin"
+            title="Admin"
+            subtitle="Ingresa con las credenciales privadas del entrenador."
+            icon={<ShieldCheck size={22} />}
+          />
+
+          {error ? (
+            <div className="mt-4 rounded-2xl border border-red-300/20 bg-red-400/10 p-4 text-sm font-semibold text-red-100">
+              {errorCopy[error] ?? "No pudimos completar el acceso."}
+            </div>
+          ) : null}
+        </div>
       </section>
     </main>
   );
