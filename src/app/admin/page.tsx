@@ -7,63 +7,17 @@ import {
   Search,
   UsersRound,
 } from "lucide-react";
+import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { AdminMembersTable } from "@/components/ui/organisms/admin-members-table";
 import { TopNav } from "@/components/ui/organisms/top-nav";
 import { getAdminDashboardData } from "@/lib/admin-data";
 import { requireAdmin } from "@/lib/auth";
 import { formatCurrency, trainer } from "@/lib/atletix-data";
 
-const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
-  invalid_member_form: {
-    body: "Revisa los datos de la clienta. Nombre, correo, telefono y objetivo son obligatorios.",
-    tone: "error",
-  },
-  member_auth_failed: {
-    body: "No se pudo crear el usuario en Supabase Auth. Revisa si ese correo ya existe.",
-    tone: "error",
-  },
-  member_created: {
-    body: "Clienta creada y correo de activacion enviado.",
-    tone: "success",
-  },
-  member_created_email_failed: {
-    body: "Clienta creada, pero Resend no pudo enviar el correo.",
-    tone: "warning",
-  },
-  member_created_email_missing: {
-    body: "Clienta creada. Falta RESEND_API_KEY para enviar el correo.",
-    tone: "warning",
-  },
-  member_created_link_failed: {
-    body: "Clienta creada, pero Supabase no genero el link para resetear password.",
-    tone: "warning",
-  },
-  member_profile_failed: {
-    body: "No se pudo crear el perfil de la clienta.",
-    tone: "error",
-  },
-  member_record_failed: {
-    body: "No se pudo crear la ficha de la clienta.",
-    tone: "error",
-  },
-  missing_supabase_admin: {
-    body: "Falta SUPABASE_SERVICE_ROLE_KEY para crear clientas reales.",
-    tone: "error",
-  },
-};
-
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ notice?: string }>;
-}) {
+export default async function AdminPage() {
   await requireAdmin();
 
-  const [{ notice }, dashboard] = await Promise.all([
-    searchParams,
-    getAdminDashboardData(),
-  ]);
-  const noticeConfig = notice ? noticeCopy[notice] : null;
+  const dashboard = await getAdminDashboardData();
   const previewMembers = dashboard.members.slice(0, 5);
 
   return (
@@ -80,7 +34,6 @@ export default async function AdminPage({
           </h1>
         </div>
 
-        {noticeConfig ? <AdminNotice {...noticeConfig} /> : null}
         {dashboard.setupMessage ? (
           <AdminNotice body={dashboard.setupMessage} tone="warning" />
         ) : null}
@@ -177,26 +130,6 @@ function AdminMetric({
       </p>
       <p className="metric-number mt-2 text-3xl font-black text-white">{value}</p>
       <p className="mt-1 text-sm text-zinc-500">{detail}</p>
-    </div>
-  );
-}
-
-function AdminNotice({
-  body,
-  tone,
-}: {
-  body: string;
-  tone: "success" | "warning" | "error";
-}) {
-  const tones = {
-    error: "border-red-300/20 bg-red-400/10 text-red-100",
-    success: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
-    warning: "border-amber-300/20 bg-amber-400/10 text-amber-100",
-  };
-
-  return (
-    <div className={`mb-6 rounded-2xl border px-4 py-3 text-sm font-semibold ${tones[tone]}`}>
-      {body}
     </div>
   );
 }
