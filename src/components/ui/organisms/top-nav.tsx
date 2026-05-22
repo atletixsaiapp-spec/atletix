@@ -9,7 +9,6 @@ type TopNavActive = "clienta" | "admin" | "demo" | "login";
 
 const navItems: { href: string; key: TopNavActive; label: string }[] = [
   { href: "/login", key: "login", label: "Login" },
-  { href: "/demo", key: "demo", label: "Demo" },
   { href: "/admin", key: "admin", label: "Admin" },
 ];
 
