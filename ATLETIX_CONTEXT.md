@@ -27,6 +27,15 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - Supabase
 - Vercel CLI
 
+## UI Rules
+
+- ATLETIX is mobile-first. Build and review every page, dashboard, list, form, table, and navigation state for mobile first, then scale up to tablet and desktop.
+- Everything created in this app should be responsive. Do not leave new views desktop-only.
+- Avoid forcing wide tables on mobile. Use mobile card/list layouts and reserve tables for tablet/desktop when needed.
+- Reusable UI belongs in `src/components/ui`.
+- Use `src/components/ui/atoms` for small reusable pieces, `src/components/ui/organisms` for composed sections such as navigation and admin lists, and `src/components/ui/icons` for shared icon exports.
+- Before creating a page-local UI component, check whether an existing shared UI component can be reused or extended.
+
 ## Important Routes
 
 - `/` redirects to `/login`
