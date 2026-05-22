@@ -35,6 +35,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/demo` public seeded visual demo
 - `/dashboard` protected client dashboard placeholder
 - `/admin` protected trainer/admin dashboard
+- `/admin/clientas` protected full client list page
 - `/clientes/[id]` protected admin client detail page
 - `/reset-password` client password setup/reset page used by emailed Supabase recovery links
 
@@ -46,6 +47,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/demo/page.tsx` seeded visual demo
 - `src/app/dashboard/page.tsx` protected client dashboard placeholder
 - `src/app/admin/page.tsx` protected admin dashboard
+- `src/app/admin/clientas/page.tsx` protected full client list page
 - `src/app/admin/actions.ts` admin server actions for creating client accounts
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/clientes/[id]/page.tsx` client detail page
@@ -54,7 +56,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/components/auth/reset-password-form.tsx` password setup/reset form
 - `src/components/ui/atoms/*` reusable small UI pieces such as brand logo, nav links, status badge
 - `src/components/ui/icons/*` shared icon exports
-- `src/components/ui/organisms/top-nav.tsx` reusable responsive top nav with mobile drawer
+- `src/components/ui/organisms/*` reusable larger UI pieces such as top nav and admin member table
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers
 - `src/lib/auth.ts` server-side auth/role guards
