@@ -14,7 +14,8 @@ Main experiences:
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
 - Protected client dashboard placeholder.
 - Protected admin dashboard: Supabase-backed analytics/client preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
-- Protected client listing page: full client list plus trainer-only client account creation and Resend welcome/reset email flow.
+- Protected client listing page: full client list.
+- Protected client creation page: trainer-only client account creation and Resend welcome/reset email flow.
 - Client detail pages for trainer review and management: edit client profile, activate/revoke membership, add manual payments, view payments, progress, routine, attendance, and charts.
 
 No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer. Only admins should create client accounts and trigger activation emails later.
@@ -46,6 +47,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/dashboard` protected client dashboard placeholder
 - `/admin` protected trainer/admin dashboard
 - `/admin/clientas` protected full client list page
+- `/admin/clientas/nueva` protected client account creation page
 - `/clientes/[id]` protected admin client detail page
 - `/reset-password` client password setup/reset page used by emailed Supabase recovery links
 
@@ -58,6 +60,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/dashboard/page.tsx` protected client dashboard placeholder
 - `src/app/admin/page.tsx` protected admin dashboard
 - `src/app/admin/clientas/page.tsx` protected full client list page
+- `src/app/admin/clientas/nueva/page.tsx` protected client account creation page
 - `src/app/admin/actions.ts` admin server actions for creating client accounts
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/clientes/[id]/page.tsx` client detail page

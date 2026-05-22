@@ -93,6 +93,7 @@ export async function createMemberAccount(formData: FormData) {
   if (!hasEmailConfig()) {
     revalidatePath("/admin");
     revalidatePath("/admin/clientas");
+    revalidatePath("/admin/clientas/nueva");
     redirectWithNotice("member_created_email_missing");
   }
 
@@ -108,6 +109,7 @@ export async function createMemberAccount(formData: FormData) {
   if (recoveryLinkError || !recoveryLink.properties?.action_link) {
     revalidatePath("/admin");
     revalidatePath("/admin/clientas");
+    revalidatePath("/admin/clientas/nueva");
     redirectWithNotice("member_created_link_failed");
   }
 
@@ -121,11 +123,13 @@ export async function createMemberAccount(formData: FormData) {
   } catch {
     revalidatePath("/admin");
     revalidatePath("/admin/clientas");
+    revalidatePath("/admin/clientas/nueva");
     redirectWithNotice("member_created_email_failed");
   }
 
   revalidatePath("/admin");
   revalidatePath("/admin/clientas");
+  revalidatePath("/admin/clientas/nueva");
   redirectWithNotice("member_created");
 }
 
@@ -148,5 +152,5 @@ function optionalNumber(value: FormDataEntryValue | null) {
 }
 
 function redirectWithNotice(notice: string): never {
-  redirect(`/admin/clientas?notice=${notice}`);
+  redirect(`/admin/clientas/nueva?notice=${notice}`);
 }
