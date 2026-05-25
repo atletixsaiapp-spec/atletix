@@ -27,7 +27,7 @@ export function ResetPasswordForm() {
         return;
       }
 
-      setMessage("Password actualizado. Ya puedes iniciar sesion.");
+      setMessage("Password actualizado. Ya puedes iniciar sesion para continuar.");
     });
   }
 

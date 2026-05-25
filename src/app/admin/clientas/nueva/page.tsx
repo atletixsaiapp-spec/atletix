@@ -9,27 +9,31 @@ import { trainer } from "@/lib/atletix-data";
 
 const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
   invalid_member_form: {
-    body: "Revisa los datos de la clienta. Nombre, correo, telefono y objetivo son obligatorios.",
+    body: "Revisa los datos de la clienta. Nombre, correo, fecha de cumpleaños y celular son obligatorios.",
     tone: "error",
   },
   member_auth_failed: {
     body: "No se pudo crear el usuario en Supabase Auth. Revisa si ese correo ya existe.",
     tone: "error",
   },
+  member_duplicate: {
+    body: "Ya existe una clienta con ese correo.",
+    tone: "warning",
+  },
   member_created: {
-    body: "Clienta creada y correo de activacion enviado.",
+    body: "Invitacion creada y correo de activacion enviado.",
     tone: "success",
   },
   member_created_email_failed: {
-    body: "Clienta creada, pero Resend no pudo enviar el correo.",
+    body: "Invitacion creada, pero Resend no pudo enviar el correo.",
     tone: "warning",
   },
   member_created_email_missing: {
-    body: "Clienta creada. Falta RESEND_API_KEY para enviar el correo.",
+    body: "Invitacion creada. Falta RESEND_API_KEY para enviar el correo.",
     tone: "warning",
   },
   member_created_link_failed: {
-    body: "Clienta creada, pero Supabase no genero el link para resetear password.",
+    body: "Invitacion creada, pero Supabase no genero el link de activacion.",
     tone: "warning",
   },
   member_profile_failed: {
@@ -76,10 +80,11 @@ export default async function NewAdminClientPage({
             {trainer.gym} Admin
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-5xl">
-            Crear nueva cuenta
+            Invitar clienta
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500 sm:text-base">
-            Crea la ficha de la clienta y envia el correo para activar su acceso.
+            Crea la ficha inicial con los datos de contacto y envia el correo para
+            que configure su password.
           </p>
         </div>
 

@@ -12,6 +12,7 @@ type Database = {
           goal: string;
           height_cm?: number | null;
           initial_weight_kg?: number | null;
+          is_active?: boolean;
           phone?: string | null;
           user_id?: string | null;
         };

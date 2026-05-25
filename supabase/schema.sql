@@ -31,7 +31,7 @@ create table public.members (
   level text not null default 'Rookie',
   xp integer not null default 0,
   streak_days integer not null default 0,
-  is_active boolean not null default true,
+  is_active boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

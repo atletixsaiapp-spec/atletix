@@ -15,7 +15,8 @@ export default function ResetPasswordPage() {
             Crea tu password
           </h1>
           <p className="mt-4 leading-7 text-zinc-400">
-            Usa el link que recibiste por correo para configurar tu acceso.
+            Usa el link que recibiste por correo para activar tu acceso. Despues
+            entra a la app para continuar tu registro.
           </p>
 
           <ResetPasswordForm />

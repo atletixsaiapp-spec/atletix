@@ -15,7 +15,8 @@ Main experiences:
 - Protected client dashboard placeholder.
 - Protected admin dashboard: Supabase-backed analytics/client preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
 - Protected client listing page: full client list.
-- Protected client creation page: trainer-only client account creation and Resend welcome/reset email flow.
+- Protected client invite page: trainer-only single client invite with name, email, birth date, phone, and Resend activation email flow.
+- Protected bulk client invite page: trainer can paste Excel/CSV rows, normalize contacts, create client records, and send activation emails.
 - Client detail pages for trainer review and management: edit client profile, activate/revoke membership, add manual payments, view payments, progress, routine, attendance, and charts.
 
 No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer. Only admins should create client accounts and trigger activation emails later.
@@ -47,7 +48,8 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/dashboard` protected client dashboard placeholder
 - `/admin` protected trainer/admin dashboard
 - `/admin/clientas` protected full client list page
-- `/admin/clientas/nueva` protected client account creation page
+- `/admin/clientas/nueva` protected single client invite page
+- `/admin/clientas/importar` protected bulk client invite/import page
 - `/clientes/[id]` protected admin client detail page
 - `/reset-password` client password setup/reset page used by emailed Supabase recovery links
 
@@ -60,8 +62,9 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/dashboard/page.tsx` protected client dashboard placeholder
 - `src/app/admin/page.tsx` protected admin dashboard
 - `src/app/admin/clientas/page.tsx` protected full client list page
-- `src/app/admin/clientas/nueva/page.tsx` protected client account creation page
-- `src/app/admin/actions.ts` admin server actions for creating client accounts
+- `src/app/admin/clientas/nueva/page.tsx` protected single client invite page
+- `src/app/admin/clientas/importar/page.tsx` protected bulk client invite/import page
+- `src/app/admin/actions.ts` admin server actions for creating client invites and bulk imports
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/clientes/[id]/page.tsx` client detail page
 - `src/app/clientes/[id]/actions.ts` client detail server actions for editing, membership control, and manual payments
@@ -72,7 +75,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/components/ui/atoms/profile-metric.tsx` shared metric card component
 - `src/components/ui/atoms/*` reusable small UI pieces such as brand logo, nav links, status badge
 - `src/components/ui/icons/*` shared icon exports
-- `src/components/ui/organisms/*` reusable larger UI pieces such as top nav and admin member table
+- `src/components/ui/organisms/*` reusable larger UI pieces such as top nav, admin member table, and invite forms
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
 - `src/lib/admin-member-detail.ts` Supabase-backed client detail loader and derived metrics
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers
@@ -139,9 +142,11 @@ Current backend notes:
 2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and client creation.
 3. Add `RESEND_API_KEY` locally and in Vercel for welcome/reset emails.
 4. Ensure Supabase Auth URL settings allow `https://atletix.vercel.app/reset-password`.
-5. Admin creation flow creates a Supabase Auth user, profile row, member row, recovery link, and Resend email.
+5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery link, and Resend activation email.
 6. Client detail supports manual payment insertion and membership activation/revocation through server actions.
 7. Gender is not yet stored in the database schema, so the detail UI currently shows it as `No registrado`.
+8. Client invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
+9. Invited members use default goal `Salud general` until the trainer edits the profile or the future onboarding completion screen collects it.
 
 ## Vercel
 

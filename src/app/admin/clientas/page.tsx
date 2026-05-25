@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Search, UserPlus } from "lucide-react";
+import { ArrowLeft, Search, Upload, UserPlus } from "lucide-react";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { AdminMembersTable } from "@/components/ui/organisms/admin-members-table";
 import { TopNav } from "@/components/ui/organisms/top-nav";
@@ -37,13 +37,22 @@ export default async function AdminClientsPage() {
             </h1>
           </div>
 
-          <Link
-            href="/admin/clientas/nueva"
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200 md:w-auto"
-          >
-            <UserPlus size={18} />
-            Crear nueva cuenta
-          </Link>
+          <div className="grid w-full gap-3 sm:grid-cols-2 md:w-auto">
+            <Link
+              href="/admin/clientas/importar"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#ff2fa8]/45 bg-[#ff2fa8]/10 px-5 py-3 text-sm font-black text-white transition hover:bg-[#ff2fa8]/20"
+            >
+              <Upload size={18} />
+              Importar
+            </Link>
+            <Link
+              href="/admin/clientas/nueva"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200"
+            >
+              <UserPlus size={18} />
+              Invitar clienta
+            </Link>
+          </div>
         </div>
 
         {dashboard.setupMessage ? (
