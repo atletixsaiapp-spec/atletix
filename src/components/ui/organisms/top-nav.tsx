@@ -8,8 +8,8 @@ import { Menu, X } from "@/components/ui/icons/nav-icons";
 type TopNavActive = "member" | "admin" | "demo" | "login";
 
 const navItems: { href: string; key: TopNavActive; label: string }[] = [
-  { href: "/login", key: "login", label: "Login" },
-  { href: "/admin", key: "admin", label: "Admin" },
+  { href: "/login", key: "login", label: "Acceso" },
+  { href: "/admin", key: "admin", label: "Panel" },
 ];
 
 export function TopNav({ active }: { active: TopNavActive }) {
@@ -57,7 +57,7 @@ export function TopNav({ active }: { active: TopNavActive }) {
           >
             <div className="mb-4 flex items-center justify-between gap-3">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-zinc-500">
-                Menu
+                Menú
               </p>
               <button
                 type="button"

@@ -4,10 +4,11 @@ import { signIn } from "@/app/auth/actions";
 import { TopNav } from "@/components/ui/organisms/top-nav";
 
 const errorCopy: Record<string, string> = {
-  missing_credentials: "Ingresa tus datos o correo y contrasena para continuar.",
-  invalid_credentials: "No pudimos iniciar sesion con esos datos.",
-  admin_not_configured: "El acceso admin aun no esta configurado en el servidor.",
-  admin_required: "Necesitas acceso admin para entrar al panel.",
+  missing_credentials: "Ingresa tus datos o correo y contraseña para continuar.",
+  invalid_credentials: "No pudimos iniciar sesión con esos datos.",
+  admin_not_configured:
+    "El acceso de administrador aún no está configurado en el servidor.",
+  admin_required: "Necesitas acceso de administrador para entrar al panel.",
 };
 
 export function ClientLoginScreen({ error }: { error?: string }) {
@@ -43,10 +44,10 @@ export function AdminLoginScreen({ error }: { error?: string }) {
         <div className="w-full">
           <div className="mb-5">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#ff8bd8]">
-              ATLETIX Admin
+              ATLETIX Administrador
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-4xl">
-              Acceso admin
+              Acceso de administrador
             </h1>
             <p className="mt-3 text-sm leading-6 text-zinc-400">
               Panel privado para crear cuentas, revisar pagos y controlar el gimnasio.
@@ -55,8 +56,8 @@ export function AdminLoginScreen({ error }: { error?: string }) {
 
           <LoginPanel
             role="admin"
-            title="Admin"
-            subtitle="Ingresa con las credenciales privadas de administracion."
+            title="Panel"
+            subtitle="Ingresa con las credenciales privadas de administración."
             icon={<ShieldCheck size={22} />}
           />
 
@@ -82,7 +83,7 @@ function LoginPanel({
   subtitle?: string;
   icon: ReactNode;
 }) {
-  const buttonLabel = role === "admin" ? "Entrar a admin" : "Entrar a mi cuenta";
+  const buttonLabel = role === "admin" ? "Entrar al panel" : "Entrar a mi cuenta";
 
   return (
     <section className="glass-panel rounded-3xl p-5 sm:p-6">
@@ -92,7 +93,7 @@ function LoginPanel({
         </div>
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-500">
-            Login
+            Acceso
           </p>
           <h2 className="text-2xl font-black text-white">{title}</h2>
         </div>
@@ -123,7 +124,7 @@ function LoginPanel({
         <TextField
           autoComplete="current-password"
           icon={<LockKeyhole size={18} />}
-          label="Contrasena"
+          label="Contraseña"
           name="password"
           type="password"
         />
@@ -174,7 +175,7 @@ export function ActivationNotice() {
       <KeyRound className="mt-1 shrink-0 text-[#ff8bd8]" size={18} />
       <p>
         Si ya pagaste y no tienes acceso, escribe al equipo ATLETIX por WhatsApp para
-        recibir tu correo de activacion.
+        recibir tu correo de activación.
       </p>
     </div>
   );

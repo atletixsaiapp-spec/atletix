@@ -19,7 +19,7 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     tone: "error",
   },
   missing_supabase_admin: {
-    body: "Falta configuracion del servidor para completar el onboarding.",
+    body: "Falta configuración del servidor para completar el perfil.",
     tone: "error",
   },
   profile_update_failed: {
@@ -52,10 +52,10 @@ export default async function OnboardingPage({
             Completar perfil
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-normal text-white">
-            Ultimo paso para activar tu panel
+            Último paso para activar tu panel
           </h1>
           <p className="mt-4 leading-7 text-zinc-400">
-            Confirma tus datos iniciales para personalizar tu rutina, membresia y
+            Confirma tus datos iniciales para personalizar tu rutina, membresía y
             progreso dentro de ATLETIX.
           </p>
 

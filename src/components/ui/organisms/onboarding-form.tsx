@@ -36,7 +36,7 @@ export function OnboardingForm({
       </label>
 
       <label className={labelClass}>
-        Telefono
+        Teléfono
         <input
           className={fieldClass}
           defaultValue={member?.phone ?? ""}
@@ -58,7 +58,7 @@ export function OnboardingForm({
       </label>
 
       <label className={labelClass}>
-        Genero
+        Género
         <select className={fieldClass} defaultValue="" name="gender">
           <option value="">Seleccionar</option>
           <option value="woman">Mujer</option>
@@ -132,7 +132,7 @@ export function OnboardingForm({
           pendingLabel="Guardando perfil..."
         >
           <CheckCircle2 size={18} />
-          Finalizar onboarding
+          Completar perfil
         </PendingSubmitButton>
       </div>
     </form>

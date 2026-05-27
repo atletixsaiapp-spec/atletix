@@ -40,6 +40,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - Use `src/components/ui/atoms` for small reusable pieces, `src/components/ui/organisms` for composed sections such as navigation and admin lists, and `src/components/ui/icons` for shared icon exports.
 - Before creating a page-local UI component, check whether an existing shared UI component can be reused or extended.
 - Public copy must stay gender-neutral. Avoid terms like `clienta`, `bienvenida`, `guerreras`, or `Strong Women Only`; prefer `cuenta`, `perfil`, `persona`, and neutral phrasing.
+- User-facing copy should be Spanish. Avoid visible English product terms such as `password`, `login`, or `onboarding`; use `contraseña`, `acceso`, and `completar perfil`.
 
 ## Important Routes
 

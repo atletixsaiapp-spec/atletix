@@ -68,7 +68,7 @@ export const today = new Date("2026-05-18T12:00:00-05:00");
 export const trainer = {
   name: "Coach Andrea",
   gym: "ATLETIX",
-  slogan: "Strength Only",
+  slogan: "Fuerza sin límites",
 };
 
 export const motivationalMessages = [

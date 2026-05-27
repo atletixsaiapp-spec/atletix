@@ -84,7 +84,7 @@ export default async function NewAdminClientPage({
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500 sm:text-base">
             Crea la ficha inicial con los datos de contacto y envia el correo para
-            que configure su password.
+            que configure su contraseña.
           </p>
         </div>
 

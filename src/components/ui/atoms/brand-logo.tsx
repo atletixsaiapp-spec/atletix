@@ -11,7 +11,7 @@ export function BrandLogo() {
           ATLETIX
         </p>
         <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-zinc-500 max-[380px]:hidden">
-          Strength Only
+          Fuerza sin límites
         </p>
       </div>
     </Link>

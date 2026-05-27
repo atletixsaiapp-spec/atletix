@@ -17,7 +17,7 @@ export function ResetPasswordForm() {
       setMessage(null);
 
       if (password.length < 8) {
-        setMessage("Usa minimo 8 caracteres.");
+        setMessage("Usa mínimo 8 caracteres.");
         return;
       }
 
@@ -25,7 +25,9 @@ export function ResetPasswordForm() {
       const { error } = await supabase.auth.updateUser({ password });
 
       if (error) {
-        setMessage("No pudimos actualizar tu password. Abre de nuevo el link del correo.");
+        setMessage(
+          "No pudimos actualizar tu contraseña. Abre de nuevo el enlace del correo.",
+        );
         return;
       }
 
@@ -38,7 +40,7 @@ export function ResetPasswordForm() {
     <form action={handleSubmit} className="mt-6 space-y-4">
       <label className="block">
         <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">
-          Nuevo password
+          Nueva contraseña
         </span>
         <div className="mt-2 flex h-12 items-center gap-3 rounded-2xl border border-white/10 bg-black/30 px-4 text-zinc-500 focus-within:border-[#ff2fa8]/60">
           <LockKeyhole size={18} />
@@ -56,7 +58,7 @@ export function ResetPasswordForm() {
         className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]"
         disabled={isPending}
       >
-        {isPending ? "Guardando y entrando..." : "Guardar password"}
+        {isPending ? "Guardando y entrando..." : "Guardar contraseña"}
       </button>
 
       {message ? (

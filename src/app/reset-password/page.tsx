@@ -12,11 +12,11 @@ export default function ResetPasswordPage() {
             ATLETIX
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-normal text-white">
-            Crea tu password
+            Crea tu contraseña
           </h1>
           <p className="mt-4 leading-7 text-zinc-400">
-            Usa el link que recibiste por correo para activar tu acceso. Al guardar,
-            te llevaremos al onboarding para completar tu perfil.
+            Usa el enlace que recibiste por correo para activar tu acceso. Al guardar,
+            te llevaremos a completar tu perfil.
           </p>
 
           <ResetPasswordForm />
