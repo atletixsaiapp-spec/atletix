@@ -224,6 +224,8 @@ Remote:
 https://atletixsaiapp-spec@github.com/atletixsaiapp-spec/atletix.git
 ```
 
+Use the local ignored `.env.local` variable `GITHUB_PUSH_TOKEN` for pushes to this repo. Do not store the token value in markdown or commit it. If normal `git push` opens askpass, push with a temporary `GIT_ASKPASS` script that reads `GITHUB_PUSH_TOKEN` from `.env.local`.
+
 Initial pushed commit:
 
 ```text
