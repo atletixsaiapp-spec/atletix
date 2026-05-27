@@ -260,6 +260,55 @@ export async function addManualPayment(formData: FormData) {
   redirectWithNotice(memberId, "payment_added");
 }
 
+export async function deleteMemberAccount(formData: FormData) {
+  await requireAdmin();
+
+  const memberId = requiredText(formData.get("memberId"));
+
+  if (!hasSupabaseAdminConfig()) {
+    redirectWithNotice(memberId, "missing_supabase_admin");
+  }
+
+  const confirmation = requiredText(formData.get("confirmation")).toLowerCase();
+  const supabase = createAdminClient();
+  const { data: member, error: memberReadError } = await supabase
+    .from("members")
+    .select("email,user_id")
+    .eq("id", memberId)
+    .maybeSingle();
+
+  if (memberReadError || !member) {
+    redirectWithNotice(memberId, "member_delete_failed");
+  }
+
+  if (confirmation !== member.email.toLowerCase()) {
+    redirectWithNotice(memberId, "invalid_delete_confirmation");
+  }
+
+  const { error: memberDeleteError } = await supabase
+    .from("members")
+    .delete()
+    .eq("id", memberId);
+
+  if (memberDeleteError) {
+    redirectWithNotice(memberId, "member_delete_failed");
+  }
+
+  if (member.user_id) {
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(
+      member.user_id,
+    );
+
+    if (authDeleteError) {
+      revalidateAdminListPaths();
+      redirect("/admin/clientas?notice=member_deleted_auth_failed");
+    }
+  }
+
+  revalidateAdminListPaths();
+  redirect("/admin/clientas?notice=member_deleted");
+}
+
 function requiredText(value: FormDataEntryValue | null) {
   return String(value ?? "").trim();
 }
@@ -297,9 +346,13 @@ function dateKey(date: Date) {
 }
 
 function revalidateMemberPaths(memberId: string) {
+  revalidateAdminListPaths();
+  revalidatePath(`/clientes/${memberId}`);
+}
+
+function revalidateAdminListPaths() {
   revalidatePath("/admin");
   revalidatePath("/admin/clientas");
-  revalidatePath(`/clientes/${memberId}`);
 }
 
 function redirectWithNotice(memberId: string, notice: string): never {

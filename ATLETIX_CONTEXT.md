@@ -17,7 +17,7 @@ Main experiences:
 - Protected client listing page: full client list.
 - Protected client invite page: trainer-only single client invite with name, email, birth date, phone, and Resend activation email flow.
 - Protected bulk client invite page: trainer can paste Excel/CSV rows, normalize contacts, create client records, and send activation emails.
-- Client detail pages for trainer review and management: edit client profile, activate/revoke membership, add manual payments, view payments, progress, routine, attendance, and charts.
+- Client detail pages for trainer review and management: edit client profile, activate/revoke membership, add manual payments, delete test/error accounts with confirmation, view payments, progress, routine, attendance, and charts.
 
 No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer. Only admins should create client accounts and trigger activation emails later.
 
@@ -73,6 +73,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/components/auth/reset-password-form.tsx` password setup/reset form
 - `src/components/ui/atoms/admin-notice.tsx` shared admin notice component
 - `src/components/ui/atoms/profile-metric.tsx` shared metric card component
+- `src/components/ui/organisms/confirmation-modal.tsx` shared confirmation modal for destructive admin actions
 - `src/components/ui/atoms/*` reusable small UI pieces such as brand logo, nav links, status badge
 - `src/components/ui/icons/*` shared icon exports
 - `src/components/ui/organisms/*` reusable larger UI pieces such as top nav, admin member table, and invite forms
@@ -143,7 +144,7 @@ Current backend notes:
 3. Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` locally and in Vercel for invite emails. The sender must be verified in Resend.
 4. Ensure Supabase Auth URL settings allow `https://atletix.vercel.app/reset-password`.
 5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery link, and Resend activation email.
-6. Client detail supports manual payment insertion and membership activation/revocation through server actions.
+6. Client detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
 7. Gender is not yet stored in the database schema, so the detail UI currently shows it as `No registrado`.
 8. Client invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
 9. Invited members use default goal `Salud general` until the trainer edits the profile or the future onboarding completion screen collects it.

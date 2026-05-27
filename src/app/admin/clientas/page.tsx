@@ -7,10 +7,27 @@ import { getAdminDashboardData } from "@/lib/admin-data";
 import { requireAdmin } from "@/lib/auth";
 import { trainer } from "@/lib/atletix-data";
 
-export default async function AdminClientsPage() {
+const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
+  member_deleted: {
+    body: "Cuenta de clienta eliminada.",
+    tone: "success",
+  },
+  member_deleted_auth_failed: {
+    body: "Ficha de clienta eliminada, pero no se pudo borrar el acceso de Supabase Auth.",
+    tone: "warning",
+  },
+};
+
+export default async function AdminClientsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string }>;
+}) {
   await requireAdmin();
 
+  const { notice } = await searchParams;
   const dashboard = await getAdminDashboardData();
+  const noticeConfig = notice ? noticeCopy[notice] : null;
 
   return (
     <main className="atletix-shell min-h-screen">
@@ -58,6 +75,7 @@ export default async function AdminClientsPage() {
         {dashboard.setupMessage ? (
           <AdminNotice body={dashboard.setupMessage} tone="warning" />
         ) : null}
+        {noticeConfig ? <AdminNotice {...noticeConfig} /> : null}
 
         <section className="glass-panel overflow-hidden rounded-3xl">
           <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">

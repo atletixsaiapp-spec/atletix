@@ -21,6 +21,7 @@ import {
   AttendanceChart,
   WeightChart,
 } from "@/components/ui/organisms/member-detail-charts";
+import { ConfirmationModal } from "@/components/ui/organisms/confirmation-modal";
 import {
   EditMemberProfileForm,
   ManualPaymentForm,
@@ -30,6 +31,7 @@ import { TopNav } from "@/components/ui/organisms/top-nav";
 import {
   activateMemberMembership,
   addManualPayment,
+  deleteMemberAccount,
   revokeMemberMembership,
   updateMemberProfile,
 } from "@/app/clientes/[id]/actions";
@@ -46,6 +48,10 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     body: "Revisa los datos de la clienta antes de guardar.",
     tone: "error",
   },
+  invalid_delete_confirmation: {
+    body: "Para eliminar la cuenta debes escribir el correo exacto de la clienta.",
+    tone: "error",
+  },
   invalid_membership_dates: {
     body: "Las fechas de membresia no son validas.",
     tone: "error",
@@ -60,6 +66,10 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
   },
   member_update_failed: {
     body: "No se pudo actualizar la ficha de la clienta.",
+    tone: "error",
+  },
+  member_delete_failed: {
+    body: "No se pudo eliminar la cuenta de la clienta.",
     tone: "error",
   },
   membership_activated: {
@@ -258,6 +268,35 @@ export default async function ClientDetailPage({
                       ? formatCurrency(detail.stats.lastPaymentCop)
                       : "--"
                   }
+                />
+              </div>
+            </section>
+
+            <section className="glass-panel rounded-3xl border-red-300/20 p-5 sm:p-6">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-red-200">
+                  Zona peligrosa
+                </p>
+                <h2 className="mt-1 text-2xl font-black text-white">
+                  Eliminar cuenta
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">
+                  Borra la clienta, su acceso, membresias, pagos, asistencia y progreso.
+                  Usa esto solo para cuentas de prueba o registros creados por error.
+                </p>
+              </div>
+              <div className="mt-5">
+                <ConfirmationModal
+                  action={deleteMemberAccount}
+                  confirmLabel="Eliminar definitivamente"
+                  confirmationLabel="Escribe el correo para confirmar"
+                  confirmationName="confirmation"
+                  confirmationPlaceholder={member.email}
+                  confirmationValue={member.email}
+                  description={`Esta accion elimina permanentemente la cuenta de ${member.name} y no se puede deshacer.`}
+                  hiddenFields={[{ name: "memberId", value: member.id }]}
+                  title="Eliminar cuenta de clienta"
+                  triggerLabel="Eliminar cuenta"
                 />
               </div>
             </section>
