@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Dumbbell, KeyRound, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { signIn } from "@/app/auth/actions";
+import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 import { TopNav } from "@/components/ui/organisms/top-nav";
 
 const errorCopy: Record<string, string> = {
@@ -128,10 +129,13 @@ function LoginPanel({
           name="password"
           type="password"
         />
-        <button className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]">
+        <PendingSubmitButton
+          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]"
+          pendingLabel="Entrando..."
+        >
           <Dumbbell size={18} />
           {buttonLabel}
-        </button>
+        </PendingSubmitButton>
       </form>
     </section>
   );

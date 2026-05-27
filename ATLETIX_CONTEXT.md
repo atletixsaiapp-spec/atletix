@@ -41,6 +41,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - Before creating a page-local UI component, check whether an existing shared UI component can be reused or extended.
 - Public copy must stay gender-neutral. Avoid terms like `clienta`, `bienvenida`, `guerreras`, or `Strong Women Only`; prefer `cuenta`, `perfil`, `persona`, and neutral phrasing.
 - User-facing copy should be Spanish. Avoid visible English product terms such as `password`, `login`, or `onboarding`; use `contraseña`, `acceso`, and `completar perfil`.
+- Buttons that submit forms or trigger backend/client mutations must show a shared spinner loading state and be disabled while pending. Use `LoadingSpinner` and `PendingSubmitButton` from `src/components/ui/atoms`.
 
 ## Important Routes
 

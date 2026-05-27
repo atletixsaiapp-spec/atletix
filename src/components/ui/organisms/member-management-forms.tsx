@@ -1,4 +1,5 @@
 import type { AdminMemberDetail } from "@/lib/admin-member-detail";
+import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 
 const goals = [
   "Bajar grasa",
@@ -156,12 +157,12 @@ export function EditMemberProfileForm({
       </label>
 
       <div className="flex items-end">
-        <button
-          className="min-h-12 w-full rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200"
-          type="submit"
+        <PendingSubmitButton
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200"
+          pendingLabel="Guardando cambios..."
         >
           Guardar cambios
-        </button>
+        </PendingSubmitButton>
       </div>
     </form>
   );
@@ -204,22 +205,22 @@ export function MembershipActionForms({
             type="date"
           />
         </label>
-        <button
-          className="min-h-12 rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-black transition hover:bg-emerald-300 sm:col-span-2"
-          type="submit"
+        <PendingSubmitButton
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-black transition hover:bg-emerald-300 sm:col-span-2"
+          pendingLabel="Activando membresía..."
         >
           Activar membresia
-        </button>
+        </PendingSubmitButton>
       </form>
 
       <form action={revokeAction}>
         <input name="memberId" type="hidden" value={memberId} />
-        <button
-          className="min-h-12 w-full rounded-full border border-red-300/30 bg-red-400/10 px-5 py-3 text-sm font-black text-red-100 transition hover:bg-red-400/20"
-          type="submit"
+        <PendingSubmitButton
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-red-300/30 bg-red-400/10 px-5 py-3 text-sm font-black text-red-100 transition hover:bg-red-400/20"
+          pendingLabel="Revocando membresía..."
         >
           Revocar membresia
-        </button>
+        </PendingSubmitButton>
       </form>
     </div>
   );
@@ -316,12 +317,12 @@ export function ManualPaymentForm({
         />
       </label>
 
-      <button
-        className="min-h-12 rounded-full bg-[#ff2fa8] px-5 py-3 text-sm font-black text-white transition hover:bg-[#ff58b9] md:col-span-2"
-        type="submit"
+      <PendingSubmitButton
+        className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#ff2fa8] px-5 py-3 text-sm font-black text-white transition hover:bg-[#ff58b9] md:col-span-2"
+        pendingLabel="Registrando pago..."
       >
         Registrar pago manual
-      </button>
+      </PendingSubmitButton>
     </form>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { AlertTriangle } from "lucide-react";
+import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 
 type HiddenField = {
   name: string;
@@ -114,13 +115,13 @@ export function ConfirmationModal({
                 >
                   {cancelLabel}
                 </button>
-                <button
-                  className="min-h-12 rounded-full bg-red-400 px-5 py-3 text-sm font-black text-black transition hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-45"
+                <PendingSubmitButton
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-red-400 px-5 py-3 text-sm font-black text-black transition hover:bg-red-300 disabled:cursor-not-allowed disabled:opacity-45"
                   disabled={!canSubmit}
-                  type="submit"
+                  pendingLabel="Procesando..."
                 >
                   {confirmLabel}
-                </button>
+                </PendingSubmitButton>
               </div>
             </form>
           </section>

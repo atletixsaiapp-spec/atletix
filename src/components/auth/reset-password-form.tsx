@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/atoms/loading-spinner";
 import { createClient } from "@/utils/supabase/client";
 
 export function ResetPasswordForm() {
@@ -55,10 +56,17 @@ export function ResetPasswordForm() {
       </label>
 
       <button
-        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a] disabled:cursor-not-allowed disabled:opacity-70"
         disabled={isPending}
       >
-        {isPending ? "Guardando y entrando..." : "Guardar contraseña"}
+        {isPending ? (
+          <>
+            <LoadingSpinner />
+            Guardando y entrando...
+          </>
+        ) : (
+          "Guardar contraseña"
+        )}
       </button>
 
       {message ? (

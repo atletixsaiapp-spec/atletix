@@ -2,29 +2,32 @@
 
 import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
-import { LoaderCircle } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/atoms/loading-spinner";
 
 export function PendingSubmitButton({
   children,
   className,
+  disabled = false,
   pendingLabel,
 }: {
   children: ReactNode;
   className: string;
+  disabled?: boolean;
   pendingLabel: string;
 }) {
   const { pending } = useFormStatus();
+  const isDisabled = pending || disabled;
 
   return (
     <button
       type="submit"
-      aria-disabled={pending}
-      disabled={pending}
+      aria-disabled={isDisabled}
+      disabled={isDisabled}
       className={`${className} disabled:cursor-not-allowed disabled:opacity-70`}
     >
       {pending ? (
         <>
-          <LoaderCircle className="animate-spin" size={18} />
+          <LoadingSpinner />
           {pendingLabel}
         </>
       ) : (
