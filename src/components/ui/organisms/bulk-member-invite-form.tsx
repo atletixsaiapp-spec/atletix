@@ -1,4 +1,5 @@
 import { Upload } from "lucide-react";
+import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 
 const fieldClass =
   "mt-2 min-h-64 w-full rounded-3xl border border-white/10 bg-black/30 px-4 py-4 text-sm font-semibold leading-6 text-white outline-none transition placeholder:text-zinc-700 focus:border-[#ff2fa8]/60";
@@ -23,13 +24,13 @@ Maria Perez\tmaria@email.com\t29\t15/04/1997\t3001234567`}
         />
       </label>
 
-      <button
-        type="submit"
+      <PendingSubmitButton
         className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#ff2fa8] px-5 py-3 text-sm font-black text-white transition hover:bg-[#ff58b9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff8bd8] sm:w-fit"
+        pendingLabel="Importando..."
       >
         <Upload size={18} />
         Importar y enviar invitaciones
-      </button>
+      </PendingSubmitButton>
     </form>
   );
 }

@@ -13,6 +13,7 @@ Main experiences:
 - Public account login, separate simple admin login, no public signup.
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
 - Protected account dashboard placeholder.
+- Protected onboarding flow: invited accounts complete missing profile fields before reaching dashboard.
 - Protected admin dashboard: Supabase-backed analytics/account preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
 - Protected account listing page: full member account list.
 - Protected account invite page: admin-only single account invite with name, email, birth date, phone, and Resend activation email flow.
@@ -47,6 +48,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/admin/login` public admin login
 - `/demo` public seeded visual demo
 - `/dashboard` protected account dashboard placeholder
+- `/onboarding` protected account completion flow shown until required member fields are complete
 - `/admin` protected trainer/admin dashboard
 - `/admin/clientas` protected full account list page
 - `/admin/clientas/nueva` protected single account invite page
@@ -62,6 +64,8 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/admin/login/page.tsx` public admin login
 - `src/app/demo/page.tsx` seeded visual demo
 - `src/app/dashboard/page.tsx` protected account dashboard placeholder
+- `src/app/onboarding/page.tsx` protected account completion page
+- `src/app/onboarding/actions.ts` server action for saving onboarding fields
 - `src/app/admin/page.tsx` protected admin dashboard
 - `src/app/admin/clientas/page.tsx` protected full account list page
 - `src/app/admin/clientas/nueva/page.tsx` protected single account invite page
@@ -77,6 +81,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/components/ui/atoms/admin-notice.tsx` shared admin notice component
 - `src/components/ui/atoms/profile-metric.tsx` shared metric card component
 - `src/components/ui/organisms/confirmation-modal.tsx` shared confirmation modal for destructive admin actions
+- `src/components/ui/atoms/pending-submit-button.tsx` shared pending submit button for Server Action forms
 - `src/components/ui/atoms/*` reusable small UI pieces such as brand logo, nav links, status badge
 - `src/components/ui/icons/*` shared icon exports
 - `src/components/ui/organisms/*` reusable larger UI pieces such as top nav, admin member table, and invite forms
@@ -146,11 +151,12 @@ Current backend notes:
 2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and account creation.
 3. Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` locally and in Vercel for invite emails. The sender must be verified in Resend.
 4. Admin invite emails should use `ATLETIX_SITE_URL=https://www.atletix.co` so activation buttons never fall back to localhost.
-5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery token hash, and Resend activation email. The email button points to `/auth/confirm`, which verifies the token hash and redirects the client to `/reset-password`.
-6. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
-7. Gender is not yet stored in the database schema, so the detail UI currently shows it as `No registrado`.
-8. Account invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
-9. Invited members use default goal `Salud general` until the trainer edits the profile or the future onboarding completion screen collects it.
+5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery token hash, and Resend activation email. The email button points to `/auth/confirm`, which verifies the token hash and redirects the account to `/reset-password`.
+6. Password setup auto-routes to `/onboarding`; future login/dashboard access also redirects there until required member fields are complete.
+7. Onboarding status is currently derived from existing member fields: name, phone, birth date, goal, height, initial weight, and current weight. Gender is collected optionally and stored in Supabase Auth user metadata because the database schema does not yet include a `gender` column.
+8. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
+9. Account invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
+10. Invited members use default goal `Salud general` until the admin edits the profile or onboarding completion collects it.
 
 ## Vercel
 

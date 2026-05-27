@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Dumbbell, MailCheck } from "lucide-react";
 import { TopNav } from "@/components/ui/organisms/top-nav";
-import { requireUser } from "@/lib/auth";
+import { requireOnboardedUser } from "@/lib/auth";
 
 export default async function DashboardPage() {
-  await requireUser();
+  await requireOnboardedUser();
 
   return (
     <main className="atletix-shell min-h-screen">

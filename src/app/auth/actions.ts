@@ -8,6 +8,10 @@ import {
   getAdminCredentials,
   isAdminCredentialMatch,
 } from "@/lib/admin-session";
+import {
+  getMemberOnboardingRecord,
+  isMemberOnboardingComplete,
+} from "@/lib/auth";
 
 export async function signIn(formData: FormData) {
   const password = String(formData.get("password") ?? "");
@@ -39,13 +43,21 @@ export async function signIn(formData: FormData) {
   }
 
   const supabase = createClient(await cookies());
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
     redirect("/login?error=invalid_credentials");
+  }
+
+  if (data.user) {
+    const member = await getMemberOnboardingRecord(supabase, data.user.id);
+
+    if (!isMemberOnboardingComplete(member)) {
+      redirect("/onboarding");
+    }
   }
 
   redirect("/dashboard");

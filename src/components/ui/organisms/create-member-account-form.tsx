@@ -1,4 +1,5 @@
 import { UserPlus } from "lucide-react";
+import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 
 const fieldClass =
   "mt-2 min-h-12 w-full rounded-2xl border border-white/10 bg-black/30 px-4 text-sm font-semibold text-white outline-none transition placeholder:text-zinc-700 focus:border-[#ff2fa8]/60";
@@ -51,13 +52,13 @@ export function CreateMemberAccountForm({
       </label>
 
       <div className="flex items-end md:col-span-2">
-        <button
-          type="submit"
+        <PendingSubmitButton
           className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#ff2fa8] px-5 py-3 text-sm font-black text-white transition hover:bg-[#ff58b9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff8bd8]"
+          pendingLabel="Enviando invitacion..."
         >
           <UserPlus size={18} />
           Enviar invitacion
-        </button>
+        </PendingSubmitButton>
       </div>
     </form>
   );

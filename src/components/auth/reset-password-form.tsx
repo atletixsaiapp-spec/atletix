@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
 export function ResetPasswordForm() {
+  const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -27,7 +29,8 @@ export function ResetPasswordForm() {
         return;
       }
 
-      setMessage("Password actualizado. Ya puedes iniciar sesion para continuar.");
+      router.replace("/onboarding");
+      router.refresh();
     });
   }
 
@@ -53,7 +56,7 @@ export function ResetPasswordForm() {
         className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]"
         disabled={isPending}
       >
-        {isPending ? "Guardando..." : "Guardar password"}
+        {isPending ? "Guardando y entrando..." : "Guardar password"}
       </button>
 
       {message ? (
