@@ -25,11 +25,11 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     tone: "success",
   },
   member_created_email_failed: {
-    body: "Invitacion creada, pero Resend no pudo enviar el correo.",
+    body: "Invitacion creada, pero Resend rechazo el correo. Revisa que RESEND_FROM_EMAIL use un remitente con dominio verificado.",
     tone: "warning",
   },
   member_created_email_missing: {
-    body: "Invitacion creada. Falta RESEND_API_KEY para enviar el correo.",
+    body: "Invitacion creada. Faltan RESEND_API_KEY o RESEND_FROM_EMAIL para enviar el correo.",
     tone: "warning",
   },
   member_created_link_failed: {

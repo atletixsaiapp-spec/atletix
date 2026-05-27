@@ -6,7 +6,7 @@ type SendWelcomeEmailInput = {
 };
 
 export function hasEmailConfig() {
-  return Boolean(process.env.RESEND_API_KEY);
+  return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
 }
 
 export async function sendWelcomeEmail({
@@ -21,7 +21,11 @@ export async function sendWelcomeEmail({
     throw new Error("Missing Resend API key.");
   }
 
-  const from = process.env.RESEND_FROM_EMAIL ?? "ATLETIX <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM_EMAIL;
+
+  if (!from) {
+    throw new Error("Missing Resend from email.");
+  }
 
   const response = await fetch("https://api.resend.com/emails", {
     body: JSON.stringify({

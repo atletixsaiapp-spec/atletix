@@ -115,7 +115,9 @@ function getNoticeConfig(params: {
       duplicates ? `${duplicates} duplicadas` : "",
       failed ? `${failed} filas invalidas o fallidas` : "",
       emailFailed ? `${emailFailed} correos fallaron` : "",
-      emailMissing ? `${emailMissing} sin correo por falta de RESEND_API_KEY` : "",
+      emailMissing
+        ? `${emailMissing} sin correo por falta de RESEND_API_KEY o RESEND_FROM_EMAIL`
+        : "",
       linkFailed ? `${linkFailed} sin link de activacion` : "",
     ].filter(Boolean);
 

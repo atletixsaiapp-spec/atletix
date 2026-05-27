@@ -103,7 +103,7 @@ Current app env vars:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `RESEND_API_KEY`
-- `RESEND_FROM_EMAIL` optional; defaults to `ATLETIX <onboarding@resend.dev>`
+- `RESEND_FROM_EMAIL` required for invite emails; use a verified Resend sender such as `ATLETIX <no-reply@atletix.co>`
 - `SUPABASE_SERVICE_ROLE_KEY`
 
 Local automation/env helper:
@@ -140,7 +140,7 @@ Current backend notes:
 
 1. Apply `supabase/schema.sql` in Supabase SQL editor.
 2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and client creation.
-3. Add `RESEND_API_KEY` locally and in Vercel for welcome/reset emails.
+3. Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` locally and in Vercel for invite emails. The sender must be verified in Resend.
 4. Ensure Supabase Auth URL settings allow `https://atletix.vercel.app/reset-password`.
 5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery link, and Resend activation email.
 6. Client detail supports manual payment insertion and membership activation/revocation through server actions.

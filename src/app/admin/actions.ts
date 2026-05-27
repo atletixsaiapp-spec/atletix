@@ -246,7 +246,8 @@ async function inviteMember(
       fullName: input.fullName,
       loginUrl,
     });
-  } catch {
+  } catch (error) {
+    console.error("ATLETIX invite email failed", error);
     return { emailSent: false, status: "email_failed" };
   }
 
