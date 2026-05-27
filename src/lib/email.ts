@@ -63,8 +63,8 @@ function welcomeEmailHtml({
         <p style="color:#ff8bd8;font-size:12px;font-weight:700;letter-spacing:.2em;margin:0 0 12px;text-transform:uppercase">ATLETIX</p>
         <h1 style="font-size:30px;line-height:1.1;margin:0 0 16px">Bienvenida a ATLETIX</h1>
         <p style="color:#d4d4d8;font-size:16px;line-height:1.6;margin:0 0 18px">Hola ${escapeHtml(fullName)}, tu entrenador creo tu acceso inicial. Activa tu cuenta, crea tu password y entra para continuar tu registro.</p>
-        <a href="${actionUrl}" style="background:#ff2fa8;border-radius:999px;color:#ffffff;display:inline-block;font-weight:800;margin:10px 0 20px;padding:14px 20px;text-decoration:none">Activar mi cuenta</a>
-        <p style="color:#a1a1aa;font-size:14px;line-height:1.6;margin:0">Despues podras iniciar sesion aqui: <a href="${loginUrl}" style="color:#ff8bd8">${loginUrl}</a></p>
+        <a href="${escapeHtml(actionUrl)}" style="background:#ff2fa8;border-radius:999px;color:#ffffff;display:inline-block;font-weight:800;margin:10px 0 20px;padding:14px 20px;text-decoration:none">Activar mi cuenta</a>
+        <p style="color:#a1a1aa;font-size:14px;line-height:1.6;margin:0">Despues podras iniciar sesion aqui: <a href="${escapeHtml(loginUrl)}" style="color:#ff8bd8">${escapeHtml(loginUrl)}</a></p>
       </div>
     </div>
   `;

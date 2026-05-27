@@ -173,7 +173,6 @@ async function inviteMember(
   const temporaryPassword = crypto.randomBytes(24).toString("base64url");
   const siteUrl = getSiteUrl();
   const loginUrl = `${siteUrl}/login`;
-  const resetUrl = `${siteUrl}/reset-password`;
   const { data: createdUser, error: createUserError } =
     await supabase.auth.admin.createUser({
       email: input.email,
@@ -229,19 +228,24 @@ async function inviteMember(
   const { data: recoveryLink, error: recoveryLinkError } =
     await supabase.auth.admin.generateLink({
       email: input.email,
-      options: {
-        redirectTo: resetUrl,
-      },
       type: "recovery",
     });
 
-  if (recoveryLinkError || !recoveryLink.properties?.action_link) {
+  if (recoveryLinkError || !recoveryLink.properties?.hashed_token) {
     return { emailSent: false, status: "link_failed" };
   }
 
+  const activationUrl = new URL("/auth/confirm", siteUrl);
+  activationUrl.searchParams.set(
+    "token_hash",
+    recoveryLink.properties.hashed_token,
+  );
+  activationUrl.searchParams.set("type", "recovery");
+  activationUrl.searchParams.set("next", "/reset-password");
+
   try {
     await sendWelcomeEmail({
-      actionUrl: recoveryLink.properties.action_link,
+      actionUrl: activationUrl.toString(),
       email: input.email,
       fullName: input.fullName,
       loginUrl,

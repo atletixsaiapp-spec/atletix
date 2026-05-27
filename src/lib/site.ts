@@ -17,5 +17,5 @@ export function getSiteUrl() {
     return `https://${vercelProductionUrl}`;
   }
 
-  return "https://atletix.vercel.app";
+  return "https://www.atletix.co";
 }

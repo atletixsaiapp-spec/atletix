@@ -51,7 +51,8 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/admin/clientas/nueva` protected single client invite page
 - `/admin/clientas/importar` protected bulk client invite/import page
 - `/clientes/[id]` protected admin client detail page
-- `/reset-password` client password setup/reset page used by emailed Supabase recovery links
+- `/auth/confirm` Supabase token confirmation route used by invite emails before redirecting to password setup
+- `/reset-password` client password setup/reset page used after email invite confirmation
 
 ## Important Files
 
@@ -66,6 +67,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/admin/clientas/importar/page.tsx` protected bulk client invite/import page
 - `src/app/admin/actions.ts` admin server actions for creating client invites and bulk imports
 - `src/app/auth/actions.ts` auth server actions
+- `src/app/auth/confirm/route.ts` verifies Supabase invite/recovery token hashes and sets the session cookie
 - `src/app/clientes/[id]/page.tsx` client detail page
 - `src/app/clientes/[id]/actions.ts` client detail server actions for editing, membership control, and manual payments
 - `src/app/reset-password/page.tsx` client password setup/reset page
@@ -100,7 +102,7 @@ Current app env vars:
 - `ATLETIX_ADMIN_USERNAME`
 - `ATLETIX_ADMIN_PASSWORD`
 - `ATLETIX_ADMIN_SESSION_SECRET` optional; when omitted, admin password is used to sign the session cookie
-- `ATLETIX_SITE_URL` optional; defaults to production Vercel URL
+- `ATLETIX_SITE_URL` canonical public app URL for emails; production should be `https://www.atletix.co`
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `RESEND_API_KEY`
@@ -142,8 +144,8 @@ Current backend notes:
 1. Apply `supabase/schema.sql` in Supabase SQL editor.
 2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and client creation.
 3. Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` locally and in Vercel for invite emails. The sender must be verified in Resend.
-4. Ensure Supabase Auth URL settings allow `https://atletix.vercel.app/reset-password`.
-5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery link, and Resend activation email.
+4. Admin invite emails should use `ATLETIX_SITE_URL=https://www.atletix.co` so activation buttons never fall back to localhost.
+5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery token hash, and Resend activation email. The email button points to `/auth/confirm`, which verifies the token hash and redirects the client to `/reset-password`.
 6. Client detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
 7. Gender is not yet stored in the database schema, so the detail UI currently shows it as `No registrado`.
 8. Client invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
@@ -190,9 +192,11 @@ Current linked Vercel project:
 shaquille-s-projects1/atletix
 ```
 
-Production URL:
+Production URLs:
 
 ```text
+https://www.atletix.co
+https://atletix.co
 https://atletix.vercel.app
 ```
 
