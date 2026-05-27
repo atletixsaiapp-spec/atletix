@@ -13,7 +13,6 @@ export type AdminMemberDetail = {
     count: number;
     label: string;
   }[];
-  gender: string;
   member: {
     age: number | null;
     currentWeightKg: number | null;
@@ -174,7 +173,7 @@ export async function getAdminMemberDetail(
       isConfigured: false,
       member: null,
       setupMessage:
-        "Falta SUPABASE_SERVICE_ROLE_KEY para leer datos reales de esta clienta.",
+        "Falta SUPABASE_SERVICE_ROLE_KEY para leer datos reales de este perfil.",
     };
   }
 
@@ -280,7 +279,6 @@ export async function getAdminMemberDetail(
           xpAwarded: achievement.xp_awarded,
         })),
         attendanceChart: buildAttendanceChart(workoutLogs),
-        gender: "No registrado",
         member: {
           age: member.date_of_birth ? calculateAge(member.date_of_birth) : null,
           currentWeightKg: latestWeightKg,
@@ -353,7 +351,7 @@ export async function getAdminMemberDetail(
       setupMessage:
         error instanceof Error
           ? `No se pudo leer la ficha: ${error.message}`
-          : "No se pudo leer la ficha de la clienta.",
+          : "No se pudo leer la ficha del perfil.",
     };
   }
 }
@@ -381,7 +379,7 @@ async function loadRoutine(routineId: string) {
   const exercises = (exercisesResult.data ?? []) as ExerciseRow[];
 
   return {
-    coachNotes: routine.coach_notes ?? "Sin notas del entrenador.",
+    coachNotes: routine.coach_notes ?? "Sin notas del equipo.",
     dayName: routine.day_name,
     exercises: exercises.map((exercise) => ({
       coachNote: exercise.coach_note ?? "Sin nota",

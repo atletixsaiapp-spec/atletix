@@ -42,7 +42,7 @@ export type Member = {
   joinedAt: string;
   membershipStart: string;
   membershipEnd: string;
-  level: "Rookie" | "Warrior" | "Elite" | "Titan" | "Goddess" | "Legend";
+  level: "Rookie" | "Warrior" | "Elite" | "Titan" | "Icon" | "Legend";
   xp: number;
   streakDays: number;
   weeklyGoal: number;
@@ -68,14 +68,14 @@ export const today = new Date("2026-05-18T12:00:00-05:00");
 export const trainer = {
   name: "Coach Andrea",
   gym: "ATLETIX",
-  slogan: "Strong Women Only",
+  slogan: "Strength Only",
 };
 
 export const motivationalMessages = [
-  "Hoy no se negocia contigo misma.",
+  "Hoy el compromiso no se negocia.",
   "Tu version fuerte te esta esperando.",
   "Disciplina hoy, orgullo manana.",
-  "ATLETIX no construye cuerpos, construye guerreras.",
+  "ATLETIX construye fuerza, constancia y progreso.",
   "Un entrenamiento mas cerca de tu mejor version.",
 ];
 
@@ -329,9 +329,9 @@ export function getDaysUntil(date: string) {
 
 export function getStatusLabel(status: MembershipStatus) {
   const labels: Record<MembershipStatus, string> = {
-    active: "Activa",
+    active: "Al dia",
     expiring: "Por vencer",
-    expired: "Vencida",
+    expired: "Vencio",
   };
 
   return labels[status];

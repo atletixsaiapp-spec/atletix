@@ -27,7 +27,7 @@ export default async function AdminPage() {
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="pb-6">
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#ff8bd8]">
-            Panel entrenador
+            Panel admin
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-5xl">
             {trainer.gym} Control Center
@@ -41,13 +41,13 @@ export default async function AdminPage() {
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <AdminMetric
             icon={<UsersRound size={22} />}
-            label="Total clientas"
+            label="Total cuentas"
             value={`${dashboard.stats.totalMembers}`}
-            detail={`${dashboard.stats.activeMembers} activas`}
+            detail={`${dashboard.stats.activeMembers} con membresia activa`}
           />
           <AdminMetric
             icon={<CalendarX size={22} />}
-            label="Vencidas"
+            label="Vencimientos"
             value={`${dashboard.stats.expiredMembers}`}
             detail={`${dashboard.stats.expiringMembers} por vencer`}
             tone="warning"
@@ -72,7 +72,7 @@ export default async function AdminPage() {
           <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                Clientas
+                Cuentas
               </p>
               <h2 className="mt-1 text-2xl font-black text-white">
                 Estado de membresias

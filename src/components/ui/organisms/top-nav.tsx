@@ -5,7 +5,7 @@ import { BrandLogo } from "@/components/ui/atoms/brand-logo";
 import { NavLink } from "@/components/ui/atoms/nav-link";
 import { Menu, X } from "@/components/ui/icons/nav-icons";
 
-type TopNavActive = "clienta" | "admin" | "demo" | "login";
+type TopNavActive = "member" | "admin" | "demo" | "login";
 
 const navItems: { href: string; key: TopNavActive; label: string }[] = [
   { href: "/login", key: "login", label: "Login" },

@@ -8,7 +8,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="clienta" />
+      <TopNav active="member" />
 
       <section className="mx-auto grid min-h-[calc(100vh-80px)] w-full max-w-4xl place-items-center px-4 py-10 sm:px-6 lg:px-8">
         <div className="glass-panel rounded-3xl p-6 text-center sm:p-10">

@@ -4,10 +4,10 @@ import { signIn } from "@/app/auth/actions";
 import { TopNav } from "@/components/ui/organisms/top-nav";
 
 const errorCopy: Record<string, string> = {
-  missing_credentials: "Ingresa usuario o correo y contrasena para continuar.",
+  missing_credentials: "Ingresa tus datos o correo y contrasena para continuar.",
   invalid_credentials: "No pudimos iniciar sesion con esos datos.",
   admin_not_configured: "El acceso admin aun no esta configurado en el servidor.",
-  admin_required: "Necesitas una cuenta administradora para entrar al panel.",
+  admin_required: "Necesitas acceso admin para entrar al panel.",
 };
 
 export function ClientLoginScreen({ error }: { error?: string }) {
@@ -19,7 +19,7 @@ export function ClientLoginScreen({ error }: { error?: string }) {
         <div className="w-full">
           <LoginPanel
             role="member"
-            title="Clienta"
+            title="Cuenta"
             icon={<UserRound size={22} />}
           />
 
@@ -46,17 +46,17 @@ export function AdminLoginScreen({ error }: { error?: string }) {
               ATLETIX Admin
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-4xl">
-              Acceso entrenador
+              Acceso admin
             </h1>
             <p className="mt-3 text-sm leading-6 text-zinc-400">
-              Panel privado para crear clientas, revisar pagos y controlar el gimnasio.
+              Panel privado para crear cuentas, revisar pagos y controlar el gimnasio.
             </p>
           </div>
 
           <LoginPanel
             role="admin"
             title="Admin"
-            subtitle="Ingresa con las credenciales privadas del entrenador."
+            subtitle="Ingresa con las credenciales privadas de administracion."
             icon={<ShieldCheck size={22} />}
           />
 
@@ -173,7 +173,7 @@ export function ActivationNotice() {
     <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm leading-6 text-zinc-300">
       <KeyRound className="mt-1 shrink-0 text-[#ff8bd8]" size={18} />
       <p>
-        Si ya pagaste y no tienes acceso, escribe al entrenador por WhatsApp para
+        Si ya pagaste y no tienes acceso, escribe al equipo ATLETIX por WhatsApp para
         recibir tu correo de activacion.
       </p>
     </div>

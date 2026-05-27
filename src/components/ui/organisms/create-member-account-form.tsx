@@ -17,7 +17,7 @@ export function CreateMemberAccountForm({
         <input
           className={fieldClass}
           name="fullName"
-          placeholder="Nombre de la clienta"
+          placeholder="Nombre de la persona"
           required
           type="text"
         />

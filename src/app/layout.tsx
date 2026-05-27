@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "ATLETIX",
   description:
-    "Panel responsive para clientas y administracion del gimnasio ATLETIX.",
+    "Panel responsive para cuentas y administracion del gimnasio ATLETIX.",
 };
 
 export default function RootLayout({

@@ -5,7 +5,7 @@ import { formatShortDate } from "@/lib/atletix-data";
 import { StatusBadge } from "@/components/ui/atoms/status-badge";
 
 export function AdminMembersTable({
-  emptyMessage = "Aun no hay clientas creadas.",
+  emptyMessage = "Aun no hay cuentas creadas.",
   members,
 }: {
   emptyMessage?: string;
@@ -27,7 +27,7 @@ export function AdminMembersTable({
         <table className="w-full min-w-[820px] text-left">
           <thead className="border-b border-white/10 text-xs uppercase tracking-[0.18em] text-zinc-500">
             <tr>
-              <th className="px-5 py-4 font-black">Clienta</th>
+              <th className="px-5 py-4 font-black">Cuenta</th>
               <th className="px-5 py-4 font-black">Contacto</th>
               <th className="px-5 py-4 font-black">Membresia</th>
               <th className="px-5 py-4 font-black">Progreso</th>
@@ -87,7 +87,7 @@ function MemberCard({ member }: { member: AdminDashboardMember }) {
                   ? "Sin membresia"
                   : days >= 0
                     ? `${days} dias restantes`
-                    : `${Math.abs(days)} dias vencida`
+                    : `${Math.abs(days)} dias de atraso`
               }
             />
             <MobileField
@@ -179,7 +179,7 @@ function MemberRow({ member }: { member: AdminDashboardMember }) {
               ? "Sin membresia"
               : days >= 0
                 ? `${days} dias restantes`
-                : `${Math.abs(days)} dias vencida`}
+                : `${Math.abs(days)} dias de atraso`}
           </p>
         </Link>
       </td>

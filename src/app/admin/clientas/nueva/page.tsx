@@ -9,15 +9,15 @@ import { trainer } from "@/lib/atletix-data";
 
 const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
   invalid_member_form: {
-    body: "Revisa los datos de la clienta. Nombre, correo, fecha de cumpleaños y celular son obligatorios.",
+    body: "Revisa los datos de la cuenta. Nombre, correo, fecha de cumpleaños y celular son obligatorios.",
     tone: "error",
   },
   member_auth_failed: {
-    body: "No se pudo crear el usuario en Supabase Auth. Revisa si ese correo ya existe.",
+    body: "No se pudo crear el acceso en Supabase Auth. Revisa si ese correo ya existe.",
     tone: "error",
   },
   member_duplicate: {
-    body: "Ya existe una clienta con ese correo.",
+    body: "Ya existe una cuenta con ese correo.",
     tone: "warning",
   },
   member_created: {
@@ -37,15 +37,15 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     tone: "warning",
   },
   member_profile_failed: {
-    body: "No se pudo crear el perfil de la clienta.",
+    body: "No se pudo crear el perfil de la cuenta.",
     tone: "error",
   },
   member_record_failed: {
-    body: "No se pudo crear la ficha de la clienta.",
+    body: "No se pudo crear la ficha de la cuenta.",
     tone: "error",
   },
   missing_supabase_admin: {
-    body: "Falta SUPABASE_SERVICE_ROLE_KEY para crear clientas reales.",
+    body: "Falta SUPABASE_SERVICE_ROLE_KEY para crear cuentas reales.",
     tone: "error",
   },
 };
@@ -71,7 +71,7 @@ export default async function NewAdminClientPage({
             className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
           >
             <ArrowLeft size={16} />
-            Volver a clientas
+            Volver a cuentas
           </Link>
         </div>
 
@@ -80,7 +80,7 @@ export default async function NewAdminClientPage({
             {trainer.gym} Admin
           </p>
           <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-5xl">
-            Invitar clienta
+            Invitar persona
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500 sm:text-base">
             Crea la ficha inicial con los datos de contacto y envia el correo para

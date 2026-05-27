@@ -12,7 +12,7 @@ const goals = new Set([
   "Fuerza",
   "Salud general",
 ]);
-const levels = new Set(["Rookie", "Warrior", "Elite", "Titan", "Goddess", "Legend"]);
+const levels = new Set(["Rookie", "Warrior", "Elite", "Titan", "Icon", "Legend"]);
 const paymentMethods = new Set(["cash", "transfer", "nequi", "daviplata", "other"]);
 const paymentSources = new Set(["whatsapp", "front_desk", "manual"]);
 

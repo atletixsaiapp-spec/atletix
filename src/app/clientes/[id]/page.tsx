@@ -12,7 +12,6 @@ import {
   Ruler,
   Scale,
   ShieldCheck,
-  UsersRound,
 } from "lucide-react";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { ProfileMetric } from "@/components/ui/atoms/profile-metric";
@@ -45,11 +44,11 @@ import { formatCurrency, formatShortDate } from "@/lib/atletix-data";
 
 const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
   invalid_member_update: {
-    body: "Revisa los datos de la clienta antes de guardar.",
+    body: "Revisa los datos de la cuenta antes de guardar.",
     tone: "error",
   },
   invalid_delete_confirmation: {
-    body: "Para eliminar la cuenta debes escribir el correo exacto de la clienta.",
+    body: "Para eliminar la cuenta debes escribir el correo exacto.",
     tone: "error",
   },
   invalid_membership_dates: {
@@ -61,15 +60,15 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     tone: "error",
   },
   member_updated: {
-    body: "Ficha de clienta actualizada.",
+    body: "Ficha de cuenta actualizada.",
     tone: "success",
   },
   member_update_failed: {
-    body: "No se pudo actualizar la ficha de la clienta.",
+    body: "No se pudo actualizar la ficha de la cuenta.",
     tone: "error",
   },
   member_delete_failed: {
-    body: "No se pudo eliminar la cuenta de la clienta.",
+    body: "No se pudo eliminar la cuenta.",
     tone: "error",
   },
   membership_activated: {
@@ -89,7 +88,7 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     tone: "error",
   },
   missing_supabase_admin: {
-    body: "Falta SUPABASE_SERVICE_ROLE_KEY para gestionar clientas reales.",
+    body: "Falta SUPABASE_SERVICE_ROLE_KEY para gestionar cuentas reales.",
     tone: "error",
   },
   payment_added: {
@@ -167,9 +166,9 @@ export default async function ClientDetailPage({
 
           <section className="glass-panel rounded-3xl p-5 sm:p-6">
             <SectionHeading
-              eyebrow="Ficha clienta"
+              eyebrow="Ficha de cuenta"
               title={member.name}
-              description="Resumen principal de la clienta y su estado actual en ATLETIX."
+              description="Resumen principal del perfil y su estado actual en ATLETIX."
             />
 
             <div className="mt-6 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
@@ -217,11 +216,6 @@ export default async function ClientDetailPage({
                   value={member.age === null ? "--" : `${member.age}`}
                 />
                 <ProfileMetric
-                  icon={<UsersRound size={18} />}
-                  label="Genero"
-                  value={detail.gender}
-                />
-                <ProfileMetric
                   icon={<Scale size={18} />}
                   label="Peso"
                   value={formatNumber(member.currentWeightKg, "kg")}
@@ -250,7 +244,7 @@ export default async function ClientDetailPage({
             <SectionHeading
               eyebrow="Asistencia"
               title="Entrenamiento y rutina"
-              description="Actividad registrada, racha y rutina asignada para esta clienta."
+              description="Actividad registrada, racha y rutina asignada para esta cuenta."
             />
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -298,7 +292,7 @@ export default async function ClientDetailPage({
                     {detail.routine?.name ?? "Sin rutina asignada"}
                   </h3>
                   <p className="mt-2 text-sm text-zinc-500">
-                    {detail.routine?.coachNotes ?? "Asigna una rutina para esta clienta."}
+                    {detail.routine?.coachNotes ?? "Asigna una rutina para esta cuenta."}
                   </p>
                 </div>
 
@@ -333,7 +327,7 @@ export default async function ClientDetailPage({
 
           <section className="glass-panel rounded-3xl p-5 sm:p-6">
             <SectionHeading
-              eyebrow="Datos de la clienta"
+              eyebrow="Datos de la cuenta"
               title="Perfil y evolucion"
               description="Datos editables, medidas y progreso fisico registrado."
             />
@@ -503,7 +497,7 @@ export default async function ClientDetailPage({
             <SectionHeading
               eyebrow="Eliminar cuenta"
               title="Zona peligrosa"
-              description="Borra la clienta, su acceso, membresias, pagos, asistencia y progreso. Usa esto solo para cuentas de prueba o registros creados por error."
+              description="Borra la cuenta, su acceso, membresias, pagos, asistencia y progreso. Usa esto solo para cuentas de prueba o registros creados por error."
               tone="danger"
             />
 
@@ -517,7 +511,7 @@ export default async function ClientDetailPage({
                 confirmationValue={member.email}
                 description={`Esta accion elimina permanentemente la cuenta de ${member.name} y no se puede deshacer.`}
                 hiddenFields={[{ name: "memberId", value: member.id }]}
-                title="Eliminar cuenta de clienta"
+                title="Eliminar cuenta"
                 triggerLabel="Eliminar cuenta"
               />
             </div>
@@ -535,7 +529,7 @@ function BackLink() {
       className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
     >
       <ArrowLeft size={16} />
-      Volver a clientas
+      Volver a cuentas
     </Link>
   );
 }

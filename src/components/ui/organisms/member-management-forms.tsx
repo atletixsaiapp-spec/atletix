@@ -8,7 +8,7 @@ const goals = [
   "Salud general",
 ];
 
-const levels = ["Rookie", "Warrior", "Elite", "Titan", "Goddess", "Legend"];
+const levels = ["Rookie", "Warrior", "Elite", "Titan", "Icon", "Legend"];
 
 const fieldClass =
   "mt-2 min-h-12 w-full rounded-2xl border border-white/10 bg-black/30 px-4 text-sm font-semibold text-white outline-none transition placeholder:text-zinc-700 focus:border-[#ff2fa8]/60";

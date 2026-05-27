@@ -4,22 +4,22 @@ Use this file to quickly regain project context before making changes.
 
 ## Product
 
-ATLETIX is a responsive web MVP for a women-focused gym.
+ATLETIX is a responsive web MVP for a fitness gym.
 
 The app is Phase 1A: polished UI and Supabase-ready foundation, with real backend wiring still in progress.
 
 Main experiences:
 
-- Public client login, separate simple admin login, no public signup.
+- Public account login, separate simple admin login, no public signup.
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
-- Protected client dashboard placeholder.
-- Protected admin dashboard: Supabase-backed analytics/client preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
-- Protected client listing page: full client list.
-- Protected client invite page: trainer-only single client invite with name, email, birth date, phone, and Resend activation email flow.
-- Protected bulk client invite page: trainer can paste Excel/CSV rows, normalize contacts, create client records, and send activation emails.
-- Client detail pages for trainer review and management: edit client profile, activate/revoke membership, add manual payments, delete test/error accounts with confirmation, view payments, progress, routine, attendance, and charts.
+- Protected account dashboard placeholder.
+- Protected admin dashboard: Supabase-backed analytics/account preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
+- Protected account listing page: full member account list.
+- Protected account invite page: admin-only single account invite with name, email, birth date, phone, and Resend activation email flow.
+- Protected bulk account invite page: admin can paste Excel/CSV rows, normalize contacts, create account records, and send activation emails.
+- Account detail pages for admin review and management: edit profile, activate/revoke membership, add manual payments, delete test/error accounts with confirmation, view payments, progress, routine, attendance, and charts.
 
-No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by the trainer. Only admins should create client accounts and trigger activation emails later.
+No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by admin. Only admins should create accounts and trigger activation emails later.
 
 ## Stack
 
@@ -38,40 +38,41 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - Reusable UI belongs in `src/components/ui`.
 - Use `src/components/ui/atoms` for small reusable pieces, `src/components/ui/organisms` for composed sections such as navigation and admin lists, and `src/components/ui/icons` for shared icon exports.
 - Before creating a page-local UI component, check whether an existing shared UI component can be reused or extended.
+- Public copy must stay gender-neutral. Avoid terms like `clienta`, `bienvenida`, `guerreras`, or `Strong Women Only`; prefer `cuenta`, `perfil`, `persona`, and neutral phrasing.
 
 ## Important Routes
 
 - `/` redirects to `/login`
-- `/login` public client login
+- `/login` public account login
 - `/admin/login` public admin login
 - `/demo` public seeded visual demo
-- `/dashboard` protected client dashboard placeholder
+- `/dashboard` protected account dashboard placeholder
 - `/admin` protected trainer/admin dashboard
-- `/admin/clientas` protected full client list page
-- `/admin/clientas/nueva` protected single client invite page
-- `/admin/clientas/importar` protected bulk client invite/import page
-- `/clientes/[id]` protected admin client detail page
+- `/admin/clientas` protected full account list page
+- `/admin/clientas/nueva` protected single account invite page
+- `/admin/clientas/importar` protected bulk account invite/import page
+- `/clientes/[id]` protected admin account detail page
 - `/auth/confirm` Supabase token confirmation route used by invite emails before redirecting to password setup
-- `/reset-password` client password setup/reset page used after email invite confirmation
+- `/reset-password` account password setup/reset page used after email invite confirmation
 
 ## Important Files
 
-- `src/app/page.tsx` redirects to client login
-- `src/app/login/page.tsx` public client login
+- `src/app/page.tsx` redirects to account login
+- `src/app/login/page.tsx` public account login
 - `src/app/admin/login/page.tsx` public admin login
 - `src/app/demo/page.tsx` seeded visual demo
-- `src/app/dashboard/page.tsx` protected client dashboard placeholder
+- `src/app/dashboard/page.tsx` protected account dashboard placeholder
 - `src/app/admin/page.tsx` protected admin dashboard
-- `src/app/admin/clientas/page.tsx` protected full client list page
-- `src/app/admin/clientas/nueva/page.tsx` protected single client invite page
-- `src/app/admin/clientas/importar/page.tsx` protected bulk client invite/import page
-- `src/app/admin/actions.ts` admin server actions for creating client invites and bulk imports
+- `src/app/admin/clientas/page.tsx` protected full account list page
+- `src/app/admin/clientas/nueva/page.tsx` protected single account invite page
+- `src/app/admin/clientas/importar/page.tsx` protected bulk account invite/import page
+- `src/app/admin/actions.ts` admin server actions for creating account invites and bulk imports
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/auth/confirm/route.ts` verifies Supabase invite/recovery token hashes and sets the session cookie
-- `src/app/clientes/[id]/page.tsx` client detail page
-- `src/app/clientes/[id]/actions.ts` client detail server actions for editing, membership control, and manual payments
-- `src/app/reset-password/page.tsx` client password setup/reset page
-- `src/components/auth/login-screen.tsx` client/admin login screen components
+- `src/app/clientes/[id]/page.tsx` account detail page
+- `src/app/clientes/[id]/actions.ts` account detail server actions for editing, membership control, and manual payments
+- `src/app/reset-password/page.tsx` account password setup/reset page
+- `src/components/auth/login-screen.tsx` account/admin login screen components
 - `src/components/auth/reset-password-form.tsx` password setup/reset form
 - `src/components/ui/atoms/admin-notice.tsx` shared admin notice component
 - `src/components/ui/atoms/profile-metric.tsx` shared metric card component
@@ -80,15 +81,15 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/components/ui/icons/*` shared icon exports
 - `src/components/ui/organisms/*` reusable larger UI pieces such as top nav, admin member table, and invite forms
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
-- `src/lib/admin-member-detail.ts` Supabase-backed client detail loader and derived metrics
+- `src/lib/admin-member-detail.ts` Supabase-backed account detail loader and derived metrics
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers
 - `src/lib/auth.ts` server-side auth/role guards
 - `src/lib/email.ts` Resend email helper
 - `src/lib/site.ts` site URL helper for email links
 - `src/lib/atletix-data.ts` seeded demo data
-- `src/utils/supabase/admin.ts` Supabase service role admin client
-- `src/utils/supabase/client.ts` Supabase browser client
-- `src/utils/supabase/server.ts` Supabase server client
+- `src/utils/supabase/admin.ts` Supabase service role admin helper
+- `src/utils/supabase/client.ts` Supabase browser helper
+- `src/utils/supabase/server.ts` Supabase server helper
 - `src/utils/supabase/middleware.ts` session refresh helper
 - `src/proxy.ts` Next.js 16 proxy hook for Supabase session refresh
 - `supabase/schema.sql` initial database schema and RLS policies
@@ -115,7 +116,7 @@ Local automation/env helper:
 
 Do not commit `.env.local`.
 
-Admin login is currently env-backed for the first phase. Client login still uses Supabase Auth. The admin dashboard needs `SUPABASE_SERVICE_ROLE_KEY` because the env-backed admin session is not a Supabase Auth session and should read/write protected tables through a server-only service role client.
+Admin login is currently env-backed for the first phase. Account login still uses Supabase Auth. The admin dashboard needs `SUPABASE_SERVICE_ROLE_KEY` because the env-backed admin session is not a Supabase Auth session and should read/write protected tables through a server-only service role helper.
 
 ## Supabase
 
@@ -142,13 +143,13 @@ The schema in `supabase/schema.sql` includes:
 Current backend notes:
 
 1. Apply `supabase/schema.sql` in Supabase SQL editor.
-2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and client creation.
+2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and account creation.
 3. Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` locally and in Vercel for invite emails. The sender must be verified in Resend.
 4. Admin invite emails should use `ATLETIX_SITE_URL=https://www.atletix.co` so activation buttons never fall back to localhost.
 5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery token hash, and Resend activation email. The email button points to `/auth/confirm`, which verifies the token hash and redirects the client to `/reset-password`.
-6. Client detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
+6. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
 7. Gender is not yet stored in the database schema, so the detail UI currently shows it as `No registrado`.
-8. Client invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
+8. Account invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
 9. Invited members use default goal `Salud general` until the trainer edits the profile or the future onboarding completion screen collects it.
 
 ## Vercel

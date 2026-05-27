@@ -58,7 +58,7 @@ export default function Home() {
                   Perfil activo
                 </p>
                 <h1 className="mt-1 text-2xl font-black tracking-normal text-white">
-                  Bienvenida, {featuredMember.name.split(" ")[0]}
+                  Hola, {featuredMember.name.split(" ")[0]}
                 </h1>
                 <p className="mt-1 text-sm text-zinc-400">
                   {featuredMember.goal} / {featuredMember.heightCm} cm

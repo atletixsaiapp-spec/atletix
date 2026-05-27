@@ -50,7 +50,7 @@ export default async function ImportAdminClientsPage({
             className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
           >
             <ArrowLeft size={16} />
-            Volver a clientas
+            Volver a cuentas
           </Link>
         </div>
 

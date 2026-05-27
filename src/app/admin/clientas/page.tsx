@@ -9,11 +9,11 @@ import { trainer } from "@/lib/atletix-data";
 
 const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
   member_deleted: {
-    body: "Cuenta de clienta eliminada.",
+    body: "Cuenta eliminada.",
     tone: "success",
   },
   member_deleted_auth_failed: {
-    body: "Ficha de clienta eliminada, pero no se pudo borrar el acceso de Supabase Auth.",
+    body: "Ficha eliminada, pero no se pudo borrar el acceso de Supabase Auth.",
     tone: "warning",
   },
 };
@@ -50,7 +50,7 @@ export default async function AdminClientsPage({
               {trainer.gym} Admin
             </p>
             <h1 className="mt-2 text-3xl font-black tracking-normal text-white sm:text-5xl">
-              Clientas
+              Cuentas
             </h1>
           </div>
 
@@ -67,7 +67,7 @@ export default async function AdminClientsPage({
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200"
             >
               <UserPlus size={18} />
-              Invitar clienta
+              Invitar persona
             </Link>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default async function AdminClientsPage({
                 Lista completa
               </p>
               <h2 className="mt-1 text-2xl font-black text-white">
-                {dashboard.members.length} clientas
+                {dashboard.members.length} cuentas
               </h2>
             </div>
             <div className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-zinc-400 sm:w-auto">
