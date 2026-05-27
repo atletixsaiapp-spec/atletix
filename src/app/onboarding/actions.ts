@@ -26,9 +26,8 @@ export async function completeOnboarding(formData: FormData) {
   const dateOfBirth = requiredText(formData.get("dateOfBirth"));
   const goal = requiredText(formData.get("goal"));
   const gender = optionalText(formData.get("gender"));
-  const heightCm = optionalNumber(formData.get("heightCm"));
-  const initialWeightKg = optionalNumber(formData.get("initialWeightKg"));
-  const currentWeightKg = optionalNumber(formData.get("currentWeightKg"));
+  const heightCm = positiveNumber(formData.get("heightCm"));
+  const currentWeightKg = positiveNumber(formData.get("currentWeightKg"));
 
   if (
     !fullName ||
@@ -37,7 +36,6 @@ export async function completeOnboarding(formData: FormData) {
     !goals.has(goal) ||
     !genders.has(gender ?? "") ||
     heightCm === null ||
-    initialWeightKg === null ||
     currentWeightKg === null
   ) {
     redirect("/onboarding?notice=invalid_onboarding");
@@ -46,13 +44,16 @@ export async function completeOnboarding(formData: FormData) {
   const supabase = createAdminClient();
   const { data: member, error: memberReadError } = await supabase
     .from("members")
-    .select("id,email")
+    .select("id,email,initial_weight_kg")
     .eq("user_id", user.id)
     .maybeSingle();
 
   if (memberReadError || !member) {
     redirect("/onboarding?notice=missing_member");
   }
+
+  const baselineWeightKg =
+    positiveNumber(member.initial_weight_kg) ?? currentWeightKg;
 
   const { error: memberError } = await supabase
     .from("members")
@@ -62,7 +63,7 @@ export async function completeOnboarding(formData: FormData) {
       full_name: fullName,
       goal,
       height_cm: heightCm,
-      initial_weight_kg: initialWeightKg,
+      initial_weight_kg: baselineWeightKg,
       phone,
       updated_at: new Date().toISOString(),
     })
@@ -70,6 +71,16 @@ export async function completeOnboarding(formData: FormData) {
 
   if (memberError) {
     redirect("/onboarding?notice=member_update_failed");
+  }
+
+  const progressError = await saveInitialProgressEntry({
+    memberId: member.id,
+    supabase,
+    weightKg: currentWeightKg,
+  });
+
+  if (progressError) {
+    redirect("/onboarding?notice=progress_update_failed");
   }
 
   const { error: profileError } = await supabase
@@ -115,8 +126,11 @@ function optionalText(value: FormDataEntryValue | null) {
   return text || null;
 }
 
-function optionalNumber(value: FormDataEntryValue | null) {
-  const text = requiredText(value);
+function positiveNumber(value: unknown) {
+  const text =
+    typeof value === "number"
+      ? String(value)
+      : requiredText(value as FormDataEntryValue);
 
   if (!text) {
     return null;
@@ -125,6 +139,58 @@ function optionalNumber(value: FormDataEntryValue | null) {
   const number = Number(text);
 
   return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+async function saveInitialProgressEntry({
+  memberId,
+  supabase,
+  weightKg,
+}: {
+  memberId: string;
+  supabase: ReturnType<typeof createAdminClient>;
+  weightKg: number;
+}) {
+  const entryDate = getBogotaDateKey();
+  const { data: existingEntry, error: readError } = await supabase
+    .from("progress_entries")
+    .select("id")
+    .eq("member_id", memberId)
+    .eq("entry_date", entryDate)
+    .limit(1)
+    .maybeSingle();
+
+  if (readError) {
+    return readError;
+  }
+
+  if (existingEntry) {
+    const { error } = await supabase
+      .from("progress_entries")
+      .update({ weight_kg: weightKg })
+      .eq("id", existingEntry.id);
+
+    return error;
+  }
+
+  const { error } = await supabase.from("progress_entries").insert({
+    entry_date: entryDate,
+    member_id: memberId,
+    weight_kg: weightKg,
+  });
+
+  return error;
+}
+
+function getBogotaDateKey() {
+  const parts = new Intl.DateTimeFormat("en", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "America/Bogota",
+    year: "numeric",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+
+  return `${values.year}-${values.month}-${values.day}`;
 }
 
 function isRealDate(value: string) {

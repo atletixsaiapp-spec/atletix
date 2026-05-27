@@ -26,6 +26,10 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     body: "No se pudo actualizar tu perfil de acceso.",
     tone: "warning",
   },
+  progress_update_failed: {
+    body: "No se pudo guardar tu primera medición de progreso.",
+    tone: "warning",
+  },
 };
 
 export default async function OnboardingPage({
@@ -52,11 +56,11 @@ export default async function OnboardingPage({
             Completar perfil
           </p>
           <h1 className="mt-3 text-4xl font-black tracking-normal text-white">
-            Último paso para activar tu panel
+            Completemos tu perfil
           </h1>
           <p className="mt-4 leading-7 text-zinc-400">
-            Confirma tus datos iniciales para personalizar tu rutina, membresía y
-            progreso dentro de ATLETIX.
+            Iremos paso a paso para guardar tus datos base y tu primera medición
+            de progreso.
           </p>
 
           {noticeConfig ? (

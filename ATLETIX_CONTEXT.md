@@ -14,6 +14,7 @@ Main experiences:
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
 - Protected account dashboard placeholder.
 - Protected onboarding flow: invited accounts complete missing profile fields before reaching dashboard.
+- Onboarding is a step-by-step profile completion flow, one field per step.
 - Protected admin dashboard: Supabase-backed analytics/account preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
 - Protected account listing page: full member account list.
 - Protected account invite page: admin-only single account invite with name, email, birth date, phone, and Resend activation email flow.
@@ -155,10 +156,11 @@ Current backend notes:
 4. Admin invite emails should use `ATLETIX_SITE_URL=https://www.atletix.co` so activation buttons never fall back to localhost.
 5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery token hash, and Resend activation email. The email button points to `/auth/confirm`, which verifies the token hash and redirects the account to `/reset-password`.
 6. Password setup auto-routes to `/onboarding`; future login/dashboard access also redirects there until required member fields are complete.
-7. Onboarding status is currently derived from existing member fields: name, phone, birth date, goal, height, initial weight, and current weight. Gender is collected optionally and stored in Supabase Auth user metadata because the database schema does not yet include a `gender` column.
-8. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
-9. Account invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
-10. Invited members use default goal `Salud general` until the admin edits the profile or onboarding completion collects it.
+7. Onboarding status is currently derived from existing member fields: name, phone, birth date, goal, height, and current weight. Gender is collected optionally and stored in Supabase Auth user metadata because the database schema does not yet include a `gender` column.
+8. Onboarding asks for one weight value only: `Peso de hoy`. The server stores it as `members.current_weight_kg`, uses it as `members.initial_weight_kg` only when no baseline exists yet, and creates/updates the same-day `progress_entries.weight_kg` row so weight history starts in the progress table.
+9. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
+10. Account invites store only `date_of_birth`, not age. Bulk imports can combine `EDAD` with a day/month birthday to derive the birth year; if birthday is missing, `EDAD` is only a fallback to approximate `YYYY-01-01`.
+11. Invited members use default goal `Salud general` until the admin edits the profile or onboarding completion collects it.
 
 ## Vercel
 

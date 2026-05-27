@@ -170,7 +170,16 @@ type Database = {
         Update: never;
       };
       progress_entries: {
-        Insert: never;
+        Insert: {
+          arm_cm?: number | null;
+          entry_date?: string;
+          hip_cm?: number | null;
+          leg_cm?: number | null;
+          member_id: string;
+          photo_url?: string | null;
+          waist_cm?: number | null;
+          weight_kg?: number | null;
+        };
         Row: {
           arm_cm: number | null;
           created_at: string;
@@ -184,7 +193,9 @@ type Database = {
           weight_kg: number | null;
         };
         Relationships: [];
-        Update: never;
+        Update: Partial<
+          Database["public"]["Tables"]["progress_entries"]["Insert"]
+        >;
       };
     };
     Views: Record<string, never>;

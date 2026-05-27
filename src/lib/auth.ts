@@ -78,7 +78,6 @@ export function isMemberOnboardingComplete(member: MemberOnboardingRecord | null
       member.date_of_birth &&
       member.goal &&
       member.height_cm !== null &&
-      member.initial_weight_kg !== null &&
       member.current_weight_kg !== null,
   );
 }
