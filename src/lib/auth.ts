@@ -31,6 +31,39 @@ export async function requireUser() {
   return { supabase, user };
 }
 
+export async function getAuthenticatedHomeDestination() {
+  const cookieStore = await cookies();
+  const adminSession = getAdminSession(cookieStore);
+
+  if (adminSession) {
+    return "/admin";
+  }
+
+  const supabase = createClient(cookieStore);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  return getMemberDestination(supabase, user.id);
+}
+
+export async function getAuthenticatedMemberDestination() {
+  const supabase = createClient(await cookies());
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  return getMemberDestination(supabase, user.id);
+}
+
 export async function requireOnboardedUser() {
   const session = await requireUser();
   const member = await getMemberOnboardingRecord(session.supabase, session.user.id);
@@ -80,6 +113,15 @@ export function isMemberOnboardingComplete(member: MemberOnboardingRecord | null
       member.height_cm !== null &&
       member.current_weight_kg !== null,
   );
+}
+
+async function getMemberDestination(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+) {
+  const member = await getMemberOnboardingRecord(supabase, userId);
+
+  return isMemberOnboardingComplete(member) ? "/dashboard" : "/onboarding";
 }
 
 export async function requireAdmin() {

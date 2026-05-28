@@ -46,9 +46,9 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 
 ## Important Routes
 
-- `/` redirects to `/login`
-- `/login` public account login
-- `/admin/login` public admin login
+- `/` redirects signed-in users to their saved area, otherwise to `/login`
+- `/login` public account login; redirects existing account sessions to `/dashboard` or `/onboarding`
+- `/admin/login` public admin login; redirects existing admin sessions to `/admin`
 - `/demo` public seeded visual demo
 - `/dashboard` protected account dashboard backed by Supabase data
 - `/onboarding` protected account completion flow shown until required member fields are complete
@@ -62,9 +62,9 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 
 ## Important Files
 
-- `src/app/page.tsx` redirects to account login
-- `src/app/login/page.tsx` public account login
-- `src/app/admin/login/page.tsx` public admin login
+- `src/app/page.tsx` redirects to the right area based on existing session
+- `src/app/login/page.tsx` public account login with existing-session redirect
+- `src/app/admin/login/page.tsx` public admin login with existing-session redirect
 - `src/app/demo/page.tsx` seeded visual demo
 - `src/app/dashboard/page.tsx` protected account dashboard route
 - `src/components/ui/organisms/member-dashboard.tsx` shared account dashboard UI
