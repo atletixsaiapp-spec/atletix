@@ -19,7 +19,7 @@ Main experiences:
 - Protected admin dashboard: Supabase-backed analytics/account preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
 - Protected account listing page: full member account list.
 - Protected account invite page: admin-only single account invite with name, email, birth date, phone, and Resend activation email flow.
-- Protected bulk account invite page: admin can paste Excel/CSV rows, normalize contacts, create account records, and send activation emails.
+- Protected bulk account invite page: admin can paste Excel/CSV rows, preview/edit/delete parsed contacts, then save to create account records and send activation emails.
 - Account detail pages for admin review and management: edit profile, activate/revoke membership, add manual payments, delete test/error accounts with confirmation, view payments, progress, routine, attendance, and charts.
 
 No payment gateways in this phase. Payments are confirmed outside the app, then recorded manually by admin. Only admins should create accounts and trigger activation emails later.

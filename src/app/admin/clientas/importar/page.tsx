@@ -63,7 +63,8 @@ export default async function ImportAdminClientsPage({
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500 sm:text-base">
             Pega las filas de Excel con nombre, correo, fecha de nacimiento y celular.
-            ATLETIX crea la ficha inicial y envia el link de activacion.
+            Primero revisa y edita los registros; despues ATLETIX crea las fichas y
+            envia los links de activacion.
           </p>
         </div>
 
