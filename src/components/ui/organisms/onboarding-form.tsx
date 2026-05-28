@@ -163,7 +163,7 @@ export function OnboardingForm({
   return (
     <form
       action={action}
-      className="mt-8"
+      className="grid gap-5"
       onKeyDown={(event) => {
         if (event.key === "Enter" && !isLastStep) {
           event.preventDefault();
@@ -175,7 +175,7 @@ export function OnboardingForm({
         <input key={name} name={name} type="hidden" value={value} />
       ))}
 
-      <div className="mb-8">
+      <div>
         <div className="mb-3 flex items-center justify-between gap-4 text-xs font-black uppercase tracking-[0.16em] text-zinc-500">
           <span>
             Paso {stepIndex + 1} de {steps.length}
@@ -192,9 +192,9 @@ export function OnboardingForm({
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
         <p className={labelClass}>{currentStep.label}</p>
-        <h2 className="mt-3 text-xl font-black tracking-normal text-white sm:text-2xl">
+        <h1 className="mt-3 text-3xl font-black tracking-normal text-white sm:text-4xl">
           {currentStep.title}
-        </h2>
+        </h1>
         <p className="mt-2 text-sm leading-6 text-zinc-400">
           {currentStep.description}
         </p>
@@ -206,7 +206,7 @@ export function OnboardingForm({
         })}
       </section>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-[0.45fr_1fr]">
+      <div className="grid gap-3 sm:grid-cols-[0.45fr_1fr]">
         <button
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-sm font-black text-zinc-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
           disabled={isFirstStep}

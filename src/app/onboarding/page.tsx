@@ -1,4 +1,3 @@
-import { ClipboardCheck } from "lucide-react";
 import { completeOnboarding } from "@/app/onboarding/actions";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { OnboardingForm } from "@/components/ui/organisms/onboarding-form";
@@ -47,24 +46,10 @@ export default async function OnboardingPage({
     <main className="atletix-shell min-h-screen">
       <TopNav active="member" mode="member" />
 
-      <section className="mx-auto grid min-h-[calc(100vh-80px)] w-full max-w-3xl place-items-center px-4 py-10 sm:px-6 lg:px-8">
+      <section className="mx-auto grid min-h-[calc(100vh-80px)] w-full max-w-3xl place-items-center px-4 py-6 sm:px-6 lg:px-8">
         <div className="glass-panel w-full rounded-3xl p-6 sm:p-8">
-          <div className="grid size-14 place-items-center rounded-3xl bg-[#ff2fa8]/15 text-[#ff8bd8]">
-            <ClipboardCheck size={28} />
-          </div>
-          <p className="mt-6 text-sm font-semibold uppercase tracking-[0.22em] text-[#ff8bd8]">
-            Completar perfil
-          </p>
-          <h1 className="mt-3 text-4xl font-black tracking-normal text-white">
-            Completemos tu perfil
-          </h1>
-          <p className="mt-4 leading-7 text-zinc-400">
-            Iremos paso a paso para guardar tus datos base y tu primera medición
-            de progreso.
-          </p>
-
           {noticeConfig ? (
-            <div className="mt-5">
+            <div className="mb-5">
               <AdminNotice {...noticeConfig} />
             </div>
           ) : null}
