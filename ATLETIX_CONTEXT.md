@@ -6,13 +6,13 @@ Use this file to quickly regain project context before making changes.
 
 ATLETIX is a responsive web MVP for a fitness gym.
 
-The app is Phase 1A: polished UI and Supabase-ready foundation, with real backend wiring still in progress.
+The app is Phase 1A: polished UI and Supabase-backed account/admin foundation.
 
 Main experiences:
 
 - Public account login, separate simple admin login, no public signup.
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
-- Protected account dashboard placeholder.
+- Protected account dashboard with real Supabase-backed profile, membership, payment, routine, attendance, progress, XP, and avatar data.
 - Protected onboarding flow: invited accounts complete missing profile fields before reaching dashboard.
 - Onboarding is a step-by-step profile completion flow, one field per step.
 - Protected admin dashboard: Supabase-backed analytics/account preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
@@ -50,7 +50,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/login` public account login
 - `/admin/login` public admin login
 - `/demo` public seeded visual demo
-- `/dashboard` protected account dashboard placeholder
+- `/dashboard` protected account dashboard backed by Supabase data
 - `/onboarding` protected account completion flow shown until required member fields are complete
 - `/admin` protected trainer/admin dashboard
 - `/admin/clientas` protected full account list page
@@ -66,7 +66,9 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/login/page.tsx` public account login
 - `src/app/admin/login/page.tsx` public admin login
 - `src/app/demo/page.tsx` seeded visual demo
-- `src/app/dashboard/page.tsx` protected account dashboard placeholder
+- `src/app/dashboard/page.tsx` protected account dashboard route
+- `src/components/ui/organisms/member-dashboard.tsx` shared account dashboard UI
+- `src/lib/member-dashboard.ts` account dashboard data loader/fallback mapper
 - `src/app/onboarding/page.tsx` protected account completion page
 - `src/app/onboarding/actions.ts` server action for saving onboarding fields
 - `src/app/admin/page.tsx` protected admin dashboard
