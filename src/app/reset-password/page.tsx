@@ -4,7 +4,7 @@ import { TopNav } from "@/components/ui/organisms/top-nav";
 export default function ResetPasswordPage() {
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="login" />
+      <TopNav active="login" mode="public" />
 
       <section className="mx-auto grid min-h-[calc(100vh-80px)] w-full max-w-3xl place-items-center px-4 py-10 sm:px-6 lg:px-8">
         <div className="glass-panel w-full rounded-3xl p-6 sm:p-8">

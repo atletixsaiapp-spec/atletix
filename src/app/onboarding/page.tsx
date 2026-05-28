@@ -45,7 +45,7 @@ export default async function OnboardingPage({
 
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="member" />
+      <TopNav active="member" mode="member" />
 
       <section className="mx-auto grid min-h-[calc(100vh-80px)] w-full max-w-3xl place-items-center px-4 py-10 sm:px-6 lg:px-8">
         <div className="glass-panel w-full rounded-3xl p-6 sm:p-8">

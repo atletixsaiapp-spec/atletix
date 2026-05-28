@@ -15,7 +15,7 @@ const errorCopy: Record<string, string> = {
 export function ClientLoginScreen({ error }: { error?: string }) {
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="login" />
+      <TopNav active="login" mode="public" />
 
       <section className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-lg items-center px-4 py-8 sm:px-6">
         <div className="w-full">
@@ -39,7 +39,7 @@ export function ClientLoginScreen({ error }: { error?: string }) {
 export function AdminLoginScreen({ error }: { error?: string }) {
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="admin" />
+      <TopNav active="admin" mode="public" />
 
       <section className="mx-auto flex min-h-[calc(100vh-80px)] w-full max-w-xl items-center px-4 py-8 sm:px-6">
         <div className="w-full">

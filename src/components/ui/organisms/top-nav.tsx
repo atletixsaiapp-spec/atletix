@@ -1,35 +1,54 @@
 "use client";
 
 import { useState } from "react";
+import { LogOut } from "lucide-react";
+import { signOut } from "@/app/auth/actions";
 import { BrandLogo } from "@/components/ui/atoms/brand-logo";
 import { NavLink } from "@/components/ui/atoms/nav-link";
+import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 import { Menu, X } from "@/components/ui/icons/nav-icons";
 
 type TopNavActive = "member" | "admin" | "demo" | "login";
+type TopNavMode = "public" | "member" | "admin";
 
-const navItems: { href: string; key: TopNavActive; label: string }[] = [
+const publicNavItems: { href: string; key: TopNavActive; label: string }[] = [
   { href: "/login", key: "login", label: "Acceso" },
-  { href: "/admin", key: "admin", label: "Panel" },
+  { href: "/admin/login", key: "admin", label: "Admin" },
 ];
 
-export function TopNav({ active }: { active: TopNavActive }) {
+export function TopNav({
+  active,
+  mode = "public",
+}: {
+  active: TopNavActive;
+  mode?: TopNavMode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
+  const isPrivate = mode === "member" || mode === "admin";
+  const navItems = isPrivate
+    ? []
+    : publicNavItems.filter((item) => item.key !== active);
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/10 bg-[#07070a]/82 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <BrandLogo />
 
-        <nav className="hidden items-center gap-2 md:flex" aria-label="Principal">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.key}
-              href={item.href}
-              label={item.label}
-              active={active === item.key}
-            />
-          ))}
-        </nav>
+        <div className="hidden items-center gap-2 md:flex">
+          {navItems.length ? (
+            <nav className="flex items-center gap-2" aria-label="Principal">
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.key}
+                  href={item.href}
+                  label={item.label}
+                  active={active === item.key}
+                />
+              ))}
+            </nav>
+          ) : null}
+          {isPrivate ? <LogoutForm destination={mode} /> : null}
+        </div>
 
         <button
           type="button"
@@ -80,10 +99,36 @@ export function TopNav({ active }: { active: TopNavActive }) {
                   variant="mobile"
                 />
               ))}
+              {isPrivate ? <LogoutForm destination={mode} mobile /> : null}
             </nav>
           </aside>
         </div>
       ) : null}
     </header>
+  );
+}
+
+function LogoutForm({
+  destination,
+  mobile = false,
+}: {
+  destination: "member" | "admin";
+  mobile?: boolean;
+}) {
+  return (
+    <form action={signOut}>
+      <input type="hidden" name="destination" value={destination} />
+      <PendingSubmitButton
+        className={
+          mobile
+            ? "inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 font-black text-white transition hover:border-[#ff2fa8]/50 hover:bg-[#ff2fa8]/10"
+            : "inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white px-5 py-3 font-black text-black transition hover:bg-[#ff2fa8] hover:text-white"
+        }
+        pendingLabel="Cerrando..."
+      >
+        <LogOut size={18} />
+        Cerrar sesión
+      </PendingSubmitButton>
+    </form>
   );
 }

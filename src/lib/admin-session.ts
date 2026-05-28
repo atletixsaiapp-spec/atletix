@@ -64,6 +64,16 @@ export function createAdminSessionCookie(cookieStore: CookieStore) {
   return true;
 }
 
+export function clearAdminSessionCookie(cookieStore: CookieStore) {
+  cookieStore.set(cookieName, "", {
+    httpOnly: true,
+    maxAge: 0,
+    path: "/",
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+}
+
 export function getAdminSession(cookieStore: CookieStore) {
   const rawCookie = cookieStore.get(cookieName)?.value;
 

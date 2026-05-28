@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import {
+  clearAdminSessionCookie,
   createAdminSessionCookie,
   getAdminCredentials,
   isAdminCredentialMatch,
@@ -61,4 +62,16 @@ export async function signIn(formData: FormData) {
   }
 
   redirect("/dashboard");
+}
+
+export async function signOut(formData: FormData) {
+  const destination =
+    formData.get("destination") === "admin" ? "/admin/login" : "/login";
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  clearAdminSessionCookie(cookieStore);
+  await supabase.auth.signOut();
+
+  redirect(destination);
 }

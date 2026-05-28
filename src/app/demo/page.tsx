@@ -38,7 +38,7 @@ const weightDelta = getWeightDelta(featuredMember);
 export default function Home() {
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="demo" />
+      <TopNav active="demo" mode="public" />
 
       <div className="mx-auto w-full max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm font-semibold text-amber-100">

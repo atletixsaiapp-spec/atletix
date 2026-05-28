@@ -41,7 +41,7 @@ export default async function ImportAdminClientsPage({
 
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="admin" />
+      <TopNav active="admin" mode="admin" />
 
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex">

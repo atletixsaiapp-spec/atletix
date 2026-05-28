@@ -13,6 +13,7 @@ Main experiences:
 - Public account login, separate simple admin login, no public signup.
 - Public demo: seeded visual dashboard for reviewing the ATLETIX look and feel.
 - Protected account dashboard with real Supabase-backed profile, membership, payment, routine, attendance, progress, XP, and avatar data.
+- Authenticated account/admin nav must not show public `Acceso` or `Admin` links; private nav currently exposes only `Cerrar sesión`.
 - Protected onboarding flow: invited accounts complete missing profile fields before reaching dashboard.
 - Onboarding is a step-by-step profile completion flow, one field per step.
 - Protected admin dashboard: Supabase-backed analytics/account preview and metrics, env-backed admin login, membership status, WhatsApp reminder links.
@@ -90,6 +91,7 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/components/ui/atoms/*` reusable small UI pieces such as brand logo, nav links, status badge
 - `src/components/ui/icons/*` shared icon exports
 - `src/components/ui/organisms/*` reusable larger UI pieces such as top nav, admin member table, and invite forms
+- `src/components/ui/organisms/top-nav.tsx` supports `mode="public" | "member" | "admin"`; use public mode only on public entry screens.
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
 - `src/lib/admin-member-detail.ts` Supabase-backed account detail loader and derived metrics
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers

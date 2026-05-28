@@ -15,7 +15,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="atletix-shell min-h-screen">
-      <TopNav active="member" />
+      <TopNav active="member" mode="member" />
       <MemberDashboard data={dashboard} />
     </main>
   );
