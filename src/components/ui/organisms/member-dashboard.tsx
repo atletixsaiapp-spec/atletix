@@ -301,7 +301,7 @@ export function MemberDashboard({ data }: { data: MemberDashboardData }) {
               <InfoRow
                 icon={<CalendarDays size={16} />}
                 label="Edad"
-                value={member.age !== null ? `${member.age} anos` : "Pendiente"}
+                value={member.age !== null ? `${member.age} años` : "Pendiente"}
               />
               <InfoRow
                 icon={<UserRound size={16} />}
