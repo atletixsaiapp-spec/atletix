@@ -9,7 +9,7 @@ import { trainer } from "@/lib/atletix-data";
 
 const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
   invalid_member_form: {
-    body: "Revisa los datos de la cuenta. Nombre, correo, fecha de cumpleaños y celular son obligatorios.",
+    body: "Revisa los datos de la cuenta. Nombre, correo, fecha de nacimiento y celular son obligatorios.",
     tone: "error",
   },
   member_auth_failed: {

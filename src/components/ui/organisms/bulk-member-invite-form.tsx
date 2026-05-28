@@ -18,8 +18,8 @@ export function BulkMemberInviteForm({
         <textarea
           className={fieldClass}
           name="bulkContacts"
-          placeholder={`nombre Completo\tCorreo electronico\tEDAD\tFECHA DE CUMPLEANOS\tCELULAR
-Maria Perez\tmaria@email.com\t29\t15/04/1997\t3001234567`}
+          placeholder={`nombre Completo\tCorreo electronico\tFecha de nacimiento\tCelular
+Maria Perez\tmaria@email.com\t15/04/1997\t3001234567`}
           required
         />
       </label>

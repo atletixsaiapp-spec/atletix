@@ -274,16 +274,7 @@ function parseBulkContacts(raw: string) {
   const headerIndexes = getHeaderIndexes(firstRow);
   const hasHeader = headerIndexes.hasAnyHeader;
   const dataLines = hasHeader ? lines.slice(1) : lines;
-  const indexes = hasHeader
-    ? headerIndexes
-    : {
-        age: 2,
-        dateOfBirth: 3,
-        email: 1,
-        fullName: 0,
-        hasAnyHeader: false,
-        phone: 4,
-      };
+  const indexes = hasHeader ? headerIndexes : getDefaultBulkIndexes(firstRow);
 
   const validRows: BulkContactRow[] = [];
   let invalidRows = 0;
@@ -294,10 +285,7 @@ function parseBulkContacts(raw: string) {
     const email = getCell(cells, indexes.email).toLowerCase();
     const phone = getCell(cells, indexes.phone);
     const birthDateInput = getCell(cells, indexes.dateOfBirth);
-    const ageInput = getCell(cells, indexes.age);
-    const dateOfBirth =
-      normalizeBirthDate(birthDateInput, ageInput) ??
-      approximateBirthDateFromAge(ageInput);
+    const dateOfBirth = normalizeBirthDate(birthDateInput);
 
     if (!fullName || !email || !isValidEmail(email) || !phone || !dateOfBirth) {
       invalidRows += 1;
@@ -369,7 +357,6 @@ function getHeaderIndexes(headers: string[]) {
   const normalizedHeaders = headers.map(normalizeHeader);
 
   return {
-    age: findHeaderIndex(normalizedHeaders, ["edad", "age"]),
     dateOfBirth: findHeaderIndex(normalizedHeaders, [
       "fechadecumpleanos",
       "cumpleanos",
@@ -395,7 +382,7 @@ function getHeaderIndexes(headers: string[]) {
       [
         "nombrecompleto",
         "correoelectronico",
-        "edad",
+        "fechadenacimiento",
         "fechadecumpleanos",
         "celular",
       ].some((candidate) => header.includes(candidate)),
@@ -407,6 +394,28 @@ function getHeaderIndexes(headers: string[]) {
       "phone",
       "mobile",
     ]),
+  };
+}
+
+function getDefaultBulkIndexes(cells: string[]) {
+  const legacyBirthDate = getCell(cells, 3);
+
+  if (cells.length >= 5 && normalizeBirthDate(legacyBirthDate)) {
+    return {
+      dateOfBirth: 3,
+      email: 1,
+      fullName: 0,
+      hasAnyHeader: false,
+      phone: 4,
+    };
+  }
+
+  return {
+    dateOfBirth: 2,
+    email: 1,
+    fullName: 0,
+    hasAnyHeader: false,
+    phone: 3,
   };
 }
 
@@ -434,7 +443,7 @@ function getCell(cells: string[], index: number | null) {
   return String(cells[index] ?? "").trim();
 }
 
-function normalizeBirthDate(value: string, ageValue = "") {
+function normalizeBirthDate(value: string) {
   const trimmed = value.trim();
 
   if (!trimmed) {
@@ -455,25 +464,7 @@ function normalizeBirthDate(value: string, ageValue = "") {
   const match = trimmed.match(/^(\d{1,2})[/. -](\d{1,2})[/. -](\d{2,4})$/);
 
   if (!match) {
-    const monthDayMatch = trimmed.match(/^(\d{1,2})[/. -](\d{1,2})$/);
-
-    if (!monthDayMatch) {
-      return null;
-    }
-
-    const day = Number(monthDayMatch[1]);
-    const month = Number(monthDayMatch[2]);
-    const year = getBirthYearFromAge(ageValue, month, day);
-
-    if (year === null) {
-      return null;
-    }
-
-    const dateKey = `${year}-${String(month).padStart(2, "0")}-${String(
-      day,
-    ).padStart(2, "0")}`;
-
-    return isRealDate(dateKey) ? dateKey : null;
+    return null;
   }
 
   const day = Number(match[1]);
@@ -485,46 +476,6 @@ function normalizeBirthDate(value: string, ageValue = "") {
   )}`;
 
   return isRealDate(dateKey) ? dateKey : null;
-}
-
-function approximateBirthDateFromAge(value: string) {
-  const age = getAge(value);
-
-  if (age === null) {
-    return null;
-  }
-
-  const year = new Date().getFullYear() - age;
-
-  return `${year}-01-01`;
-}
-
-function getBirthYearFromAge(value: string, month: number, day: number) {
-  const age = getAge(value);
-
-  if (age === null) {
-    return null;
-  }
-
-  const today = new Date();
-  let year = today.getFullYear() - age;
-  const birthdayThisYear = new Date(today.getFullYear(), month - 1, day);
-
-  if (birthdayThisYear > today) {
-    year -= 1;
-  }
-
-  return year;
-}
-
-function getAge(value: string) {
-  const age = Number(value.trim());
-
-  if (!Number.isInteger(age) || age < 10 || age > 100) {
-    return null;
-  }
-
-  return age;
 }
 
 function normalizeYear(year: number) {

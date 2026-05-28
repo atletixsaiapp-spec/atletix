@@ -36,7 +36,7 @@ export function CreateMemberAccountForm({
       </label>
 
       <label className={labelClass}>
-        Fecha de cumpleaños
+        Fecha de nacimiento
         <input className={fieldClass} name="dateOfBirth" required type="date" />
       </label>
 

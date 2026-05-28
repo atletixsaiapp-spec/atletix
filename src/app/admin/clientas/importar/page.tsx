@@ -12,7 +12,7 @@ const staticNoticeCopy: Record<
   { body: string; tone: "success" | "warning" | "error" }
 > = {
   invalid_bulk_input: {
-    body: "Pega al menos una fila valida con nombre, correo, fecha de cumpleaños y celular.",
+    body: "Pega al menos una fila valida con nombre, correo, fecha de nacimiento y celular.",
     tone: "error",
   },
   missing_supabase_admin: {
@@ -62,7 +62,7 @@ export default async function ImportAdminClientsPage({
             Importar invitaciones
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500 sm:text-base">
-            Pega las filas de Excel con nombre, correo, fecha de cumpleaños y celular.
+            Pega las filas de Excel con nombre, correo, fecha de nacimiento y celular.
             ATLETIX crea la ficha inicial y envia el link de activacion.
           </p>
         </div>
@@ -73,7 +73,7 @@ export default async function ImportAdminClientsPage({
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <ImportRule label="Nombre" value="nombre Completo" />
             <ImportRule label="Correo" value="Correo electronico" />
-            <ImportRule label="Fecha" value="FECHA DE CUMPLEANOS" />
+            <ImportRule label="Fecha" value="Fecha de nacimiento" />
             <ImportRule label="Celular" value="CELULAR" />
           </div>
 
