@@ -192,10 +192,10 @@ export function OnboardingForm({
 
       <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
         <p className={labelClass}>{currentStep.label}</p>
-        <h2 className="mt-3 text-3xl font-black tracking-normal text-white sm:text-4xl">
+        <h2 className="mt-3 text-xl font-black tracking-normal text-white sm:text-2xl">
           {currentStep.title}
         </h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-400">
+        <p className="mt-2 text-sm leading-6 text-zinc-400">
           {currentStep.description}
         </p>
 
