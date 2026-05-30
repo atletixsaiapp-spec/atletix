@@ -85,7 +85,7 @@ async function recordAttendance(memberId: string, source: "manual" | "qr") {
 
   revalidatePath("/admin");
   revalidatePath(attendancePath);
-  revalidatePath(`/clientes/${memberId}`);
+  revalidatePath(`/cuentas/${memberId}`);
   revalidatePath("/dashboard");
   redirectWithNotice("attendance_registered", member.full_name);
 }

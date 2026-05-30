@@ -21,7 +21,7 @@ const staticNoticeCopy: Record<
   },
 };
 
-export default async function ImportAdminClientsPage({
+export default async function ImportAdminAccountsPage({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -46,7 +46,7 @@ export default async function ImportAdminClientsPage({
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="flex">
           <Link
-            href="/admin/clientas"
+            href="/admin/cuentas"
             className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
           >
             <ArrowLeft size={16} />

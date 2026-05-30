@@ -58,11 +58,11 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/onboarding` protected account completion flow shown until required member fields are complete
 - `/admin` protected trainer/admin dashboard
 - `/admin/pagos` protected admin payment validation page
-- `/admin/clientas` protected full account list page
-- `/admin/clientas/nueva` protected single account invite page
-- `/admin/clientas/importar` protected bulk account invite/import page
+- `/admin/cuentas` protected full account list page
+- `/admin/cuentas/nueva` protected single account invite page
+- `/admin/cuentas/importar` protected bulk account invite/import page
 - `/admin/lista-espera` protected waitlist queue where admins assign a group and create an invited account from a waitlist record
-- `/clientes/[id]` protected admin account detail page
+- `/cuentas/[id]` protected admin account detail page
 - `/auth/confirm` Supabase token confirmation route used by invite emails before redirecting to password setup
 - `/reset-password` account password setup/reset page used after email invite confirmation
 
@@ -85,16 +85,16 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/app/admin/page.tsx` protected admin dashboard
 - `src/app/admin/pagos/page.tsx` protected admin payment validation page
 - `src/app/admin/pagos/actions.ts` admin payment approve/reject actions
-- `src/app/admin/clientas/page.tsx` protected full account list page
-- `src/app/admin/clientas/nueva/page.tsx` protected single account invite page
-- `src/app/admin/clientas/importar/page.tsx` protected bulk account invite/import page
+- `src/app/admin/cuentas/page.tsx` protected full account list page
+- `src/app/admin/cuentas/nueva/page.tsx` protected single account invite page
+- `src/app/admin/cuentas/importar/page.tsx` protected bulk account invite/import page
 - `src/app/admin/lista-espera/page.tsx` protected admin waitlist page
 - `src/app/admin/lista-espera/actions.ts` admin waitlist conversion and archive actions
 - `src/app/admin/actions.ts` admin server actions for creating account invites and bulk imports
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/auth/confirm/route.ts` verifies Supabase invite/recovery token hashes and sets the session cookie
-- `src/app/clientes/[id]/page.tsx` account detail page
-- `src/app/clientes/[id]/actions.ts` account detail server actions for editing, membership control, and manual payments
+- `src/app/cuentas/[id]/page.tsx` account detail page
+- `src/app/cuentas/[id]/actions.ts` account detail server actions for editing, membership control, and manual payments
 - `src/app/reset-password/page.tsx` account password setup/reset page
 - `src/components/auth/login-screen.tsx` account/admin login screen components
 - `src/components/auth/reset-password-form.tsx` password setup/reset form

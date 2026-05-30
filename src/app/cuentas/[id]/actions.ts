@@ -354,12 +354,12 @@ export async function deleteMemberAccount(formData: FormData) {
 
     if (authDeleteError) {
       revalidateAdminListPaths();
-      redirect("/admin/clientas?notice=member_deleted_auth_failed");
+      redirect("/admin/cuentas?notice=member_deleted_auth_failed");
     }
   }
 
   revalidateAdminListPaths();
-  redirect("/admin/clientas?notice=member_deleted");
+  redirect("/admin/cuentas?notice=member_deleted");
 }
 
 function requiredText(value: FormDataEntryValue | null) {
@@ -450,14 +450,14 @@ async function resolveTrainingGroupId(
 
 function revalidateMemberPaths(memberId: string) {
   revalidateAdminListPaths();
-  revalidatePath(`/clientes/${memberId}`);
+  revalidatePath(`/cuentas/${memberId}`);
 }
 
 function revalidateAdminListPaths() {
   revalidatePath("/admin");
-  revalidatePath("/admin/clientas");
+  revalidatePath("/admin/cuentas");
 }
 
 function redirectWithNotice(memberId: string, notice: string): never {
-  redirect(`/clientes/${memberId}?notice=${notice}`);
+  redirect(`/cuentas/${memberId}?notice=${notice}`);
 }

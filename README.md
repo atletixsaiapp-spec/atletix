@@ -12,10 +12,11 @@ Responsive web MVP for the ATLETIX gym app.
 
 ## Routes
 
-- `/` - Client dashboard with profile, membership, routine, progress, avatar, and motivation.
-- `/admin` - Trainer dashboard with analytics, manual payments, membership states, WhatsApp reminders, and client list.
-- `/clientes/[id]` - Admin client detail page.
-- `/login` - Login and client registration shell.
+- `/` - Account dashboard with profile, membership, routine, progress, avatar, and motivation.
+- `/admin` - Trainer dashboard with analytics, manual payments, membership states, WhatsApp reminders, and account list.
+- `/admin/cuentas` - Admin account list with server-side search and pagination.
+- `/cuentas/[id]` - Admin account detail page.
+- `/login` - Login and account access shell.
 
 ## Run Locally
 

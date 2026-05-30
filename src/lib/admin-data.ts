@@ -37,6 +37,23 @@ export type AdminDashboardData = {
   };
 };
 
+export type AdminMembersListData = {
+  isConfigured: boolean;
+  members: AdminDashboardMember[];
+  page: number;
+  pageCount: number;
+  pageSize: number;
+  query: string;
+  setupMessage?: string;
+  totalMembers: number;
+};
+
+export type AdminMembersListOptions = {
+  page?: number;
+  pageSize?: number;
+  query?: string;
+};
+
 type MemberRow = {
   current_weight_kg: number | null;
   email: string;
@@ -88,6 +105,103 @@ const emptyStats = {
   totalMembers: 0,
   weeklyAttendance: 0,
 };
+
+export async function getAdminMembersList({
+  page = 1,
+  pageSize = 10,
+  query = "",
+}: AdminMembersListOptions = {}): Promise<AdminMembersListData> {
+  const normalizedQuery = normalizeMemberSearchQuery(query);
+  const safePageSize = Math.min(50, Math.max(1, Math.trunc(pageSize)));
+  const requestedPage = Math.max(1, Math.trunc(page));
+
+  if (!hasSupabaseAdminConfig()) {
+    return {
+      isConfigured: false,
+      members: [],
+      page: 1,
+      pageCount: 1,
+      pageSize: safePageSize,
+      query: normalizedQuery,
+      setupMessage:
+        "Falta SUPABASE_SERVICE_ROLE_KEY para leer cuentas reales.",
+      totalMembers: 0,
+    };
+  }
+
+  try {
+    const supabase = createAdminClient();
+    const from = (requestedPage - 1) * safePageSize;
+    const to = from + safePageSize - 1;
+    let membersQuery = supabase
+      .from("members")
+      .select(
+        "id,full_name,email,phone,goal,joined_at,current_weight_kg,initial_weight_kg,is_active",
+        { count: "exact" },
+      )
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    const searchFilter = getMemberSearchFilter(normalizedQuery);
+
+    if (searchFilter) {
+      membersQuery = membersQuery.or(searchFilter);
+    }
+
+    const membersResult = await membersQuery;
+
+    if (membersResult.error) {
+      throw membersResult.error;
+    }
+
+    const totalMembers = membersResult.count ?? 0;
+    const pageCount = Math.max(1, Math.ceil(totalMembers / safePageSize));
+    const safePage = Math.min(requestedPage, pageCount);
+
+    if (safePage !== requestedPage) {
+      return getAdminMembersList({
+        page: safePage,
+        pageSize: safePageSize,
+        query: normalizedQuery,
+      });
+    }
+
+    const members = (membersResult.data ?? []) as MemberRow[];
+    const memberIds = members.map((member) => member.id);
+    const memberships = memberIds.length
+      ? await getLatestMembershipsForMembers(memberIds)
+      : new Map<string, MembershipRow>();
+
+    return {
+      isConfigured: true,
+      members: members.map((member) =>
+        mapAdminDashboardMember({
+          member,
+          membership: memberships.get(member.id),
+        }),
+      ),
+      page: safePage,
+      pageCount,
+      pageSize: safePageSize,
+      query: normalizedQuery,
+      totalMembers,
+    };
+  } catch (error) {
+    return {
+      isConfigured: true,
+      members: [],
+      page: 1,
+      pageCount: 1,
+      pageSize: safePageSize,
+      query: normalizedQuery,
+      setupMessage:
+        error instanceof Error
+          ? `No se pudieron leer cuentas: ${error.message}`
+          : "No se pudieron leer cuentas.",
+      totalMembers: 0,
+    };
+  }
+}
 
 export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   if (!hasSupabaseAdminConfig()) {
@@ -187,28 +301,14 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       }
     });
 
-    const dashboardMembers = members.map((member) => {
-      const membership = latestMembershipByMember.get(member.id);
-      const status = getMembershipStatusFromDate(membership?.end_date ?? null);
-      const weeklyCompleted = weeklyWorkoutCountByMember.get(member.id) ?? 0;
-      const routine = currentRoutineByMember.get(member.id);
-
-      return {
-        email: member.email,
-        goal: member.goal,
-        id: member.id,
-        initials: getInitials(member.full_name),
-        membershipEnd: membership?.end_date ?? null,
-        membershipStart: membership?.start_date ?? null,
-        name: member.full_name,
-        phone: member.phone ?? "",
-        progressPercent: Math.min(100, Math.round((weeklyCompleted / 5) * 100)),
-        routineDay: routine?.day_name ?? "Sin dia",
-        routineName: routine?.name ?? "Sin rutina",
-        status,
-        weeklyCompleted,
-      };
-    });
+    const dashboardMembers = members.map((member) =>
+      mapAdminDashboardMember({
+        member,
+        membership: latestMembershipByMember.get(member.id),
+        routine: currentRoutineByMember.get(member.id),
+        weeklyCompleted: weeklyWorkoutCountByMember.get(member.id) ?? 0,
+      }),
+    );
 
     const statuses = dashboardMembers.map((member) => member.status);
     const approvedPayments = payments.filter(
@@ -256,6 +356,81 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       stats: emptyStats,
     };
   }
+}
+
+async function getLatestMembershipsForMembers(memberIds: string[]) {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("member_id,start_date,end_date,status")
+    .in("member_id", memberIds)
+    .order("end_date", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  const latestMembershipByMember = new Map<string, MembershipRow>();
+  ((data ?? []) as MembershipRow[]).forEach((membership) => {
+    if (!latestMembershipByMember.has(membership.member_id)) {
+      latestMembershipByMember.set(membership.member_id, membership);
+    }
+  });
+
+  return latestMembershipByMember;
+}
+
+function mapAdminDashboardMember({
+  member,
+  membership,
+  routine,
+  weeklyCompleted = 0,
+}: {
+  member: MemberRow;
+  membership?: MembershipRow;
+  routine?: RoutineRow;
+  weeklyCompleted?: number;
+}): AdminDashboardMember {
+  const status = getMembershipStatusFromDate(membership?.end_date ?? null);
+
+  return {
+    email: member.email,
+    goal: member.goal,
+    id: member.id,
+    initials: getInitials(member.full_name),
+    membershipEnd: membership?.end_date ?? null,
+    membershipStart: membership?.start_date ?? null,
+    name: member.full_name,
+    phone: member.phone ?? "",
+    progressPercent: Math.min(100, Math.round((weeklyCompleted / 5) * 100)),
+    routineDay: routine?.day_name ?? "Sin dia",
+    routineName: routine?.name ?? "Sin rutina",
+    status,
+    weeklyCompleted,
+  };
+}
+
+function normalizeMemberSearchQuery(query: string) {
+  return query.trim().replace(/\s+/g, " ").slice(0, 80);
+}
+
+function getMemberSearchFilter(query: string) {
+  if (!query) {
+    return null;
+  }
+
+  const pattern = query.replace(/[,%]/g, " ").trim().replace(/\s+/g, "%");
+
+  if (!pattern) {
+    return null;
+  }
+
+  return [
+    `full_name.ilike.%${pattern}%`,
+    `email.ilike.%${pattern}%`,
+    `phone.ilike.%${pattern}%`,
+    `goal.ilike.%${pattern}%`,
+  ].join(",");
 }
 
 export function getMembershipStatusFromDate(

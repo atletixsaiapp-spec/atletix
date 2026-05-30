@@ -114,7 +114,7 @@ export default async function AdminPage() {
 
           <div className="flex border-t border-white/10 p-5 sm:justify-end">
             <Link
-              href="/admin/clientas"
+              href="/admin/cuentas"
               className="inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200 sm:w-auto"
             >
               Ver todo

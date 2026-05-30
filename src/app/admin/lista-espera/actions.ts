@@ -166,7 +166,7 @@ function isUuid(value: string) {
 function revalidateWaitlistPaths() {
   revalidatePath(waitlistAdminPath);
   revalidatePath("/admin");
-  revalidatePath("/admin/clientas");
+  revalidatePath("/admin/cuentas");
   revalidatePath("/onboarding");
 }
 

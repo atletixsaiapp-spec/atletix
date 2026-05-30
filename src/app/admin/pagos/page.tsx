@@ -221,7 +221,7 @@ function PaymentReviewCard({
             </div>
             {payment.member ? (
               <Link
-                href={`/clientes/${payment.member.id}`}
+                href={`/cuentas/${payment.member.id}`}
                 className="inline-flex min-h-10 items-center justify-center rounded-full border border-white/10 px-4 text-sm font-black text-zinc-200 transition hover:border-[#ff2fa8]/50 hover:text-white"
               >
                 Ver cuenta

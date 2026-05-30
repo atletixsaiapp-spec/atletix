@@ -55,7 +55,7 @@ function MemberCard({ member }: { member: AdminDashboardMember }) {
   return (
     <Link
       className="block rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-[#ff2fa8]/50 hover:bg-[#ff2fa8]/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff8bd8]"
-      href={`/clientes/${member.id}`}
+      href={`/cuentas/${member.id}`}
     >
       <div className="flex items-start gap-3">
         <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#ff2fa8]/15 font-black text-[#ff8bd8]">
@@ -88,24 +88,6 @@ function MemberCard({ member }: { member: AdminDashboardMember }) {
                     : `${Math.abs(days)} dias de atraso`
               }
             />
-            <MobileField
-              label="Rutina"
-              value={member.routineName}
-              detail={member.routineDay}
-            />
-          </div>
-
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-zinc-500">Semana</span>
-              <span className="font-black text-white">{member.progressPercent}%</span>
-            </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-[#ff2fa8]"
-                style={{ width: `${member.progressPercent}%` }}
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -141,7 +123,7 @@ function MemberRow({ member }: { member: AdminDashboardMember }) {
       <td className="px-5 py-4">
         <Link
           className="flex items-center gap-3 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
-          href={`/clientes/${member.id}`}
+          href={`/cuentas/${member.id}`}
         >
           <div className="grid size-11 place-items-center rounded-2xl bg-[#ff2fa8]/15 font-black text-[#ff8bd8]">
             {member.initials}
@@ -155,7 +137,7 @@ function MemberRow({ member }: { member: AdminDashboardMember }) {
       <td className="px-5 py-4">
         <Link
           className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
-          href={`/clientes/${member.id}`}
+          href={`/cuentas/${member.id}`}
         >
           <p className="font-semibold text-white">{member.email}</p>
           <p className="text-sm text-zinc-500">{member.phone || "Sin telefono"}</p>
@@ -164,7 +146,7 @@ function MemberRow({ member }: { member: AdminDashboardMember }) {
       <td className="px-5 py-4">
         <Link
           className="block space-y-2 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
-          href={`/clientes/${member.id}`}
+          href={`/cuentas/${member.id}`}
         >
           <StatusBadge status={member.status} />
           <p className="text-sm text-zinc-500">

@@ -192,8 +192,8 @@ function isUuid(value: string) {
 function revalidatePaymentPaths(memberId: string) {
   revalidatePath(adminPaymentsPath);
   revalidatePath("/admin");
-  revalidatePath("/admin/clientas");
-  revalidatePath(`/clientes/${memberId}`);
+  revalidatePath("/admin/cuentas");
+  revalidatePath(`/cuentas/${memberId}`);
   revalidatePath("/dashboard");
   revalidatePath("/pagos");
 }

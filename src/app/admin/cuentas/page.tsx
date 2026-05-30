@@ -3,7 +3,7 @@ import { ArrowLeft, Upload, UserPlus } from "lucide-react";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { AdminMembersSearch } from "@/components/ui/organisms/admin-members-search";
 import { TopNav } from "@/components/ui/organisms/top-nav";
-import { getAdminDashboardData } from "@/lib/admin-data";
+import { getAdminMembersList } from "@/lib/admin-data";
 import { requireAdmin } from "@/lib/auth";
 import { trainer } from "@/lib/atletix-data";
 
@@ -18,15 +18,18 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
   },
 };
 
-export default async function AdminClientsPage({
+export default async function AdminAccountsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ notice?: string }>;
+  searchParams: Promise<{ notice?: string; page?: string; q?: string }>;
 }) {
   await requireAdmin();
 
-  const { notice } = await searchParams;
-  const dashboard = await getAdminDashboardData();
+  const { notice, page, q } = await searchParams;
+  const memberList = await getAdminMembersList({
+    page: parsePageParam(page),
+    query: q ?? "",
+  });
   const noticeConfig = notice ? noticeCopy[notice] : null;
 
   return (
@@ -56,14 +59,14 @@ export default async function AdminClientsPage({
 
           <div className="grid w-full gap-3 sm:grid-cols-2 md:w-auto">
             <Link
-              href="/admin/clientas/importar"
+              href="/admin/cuentas/importar"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#ff2fa8]/45 bg-[#ff2fa8]/10 px-5 py-3 text-sm font-black text-white transition hover:bg-[#ff2fa8]/20"
             >
               <Upload size={18} />
               Importar
             </Link>
             <Link
-              href="/admin/clientas/nueva"
+              href="/admin/cuentas/nueva"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200"
             >
               <UserPlus size={18} />
@@ -72,15 +75,28 @@ export default async function AdminClientsPage({
           </div>
         </div>
 
-        {dashboard.setupMessage ? (
-          <AdminNotice body={dashboard.setupMessage} tone="warning" />
+        {memberList.setupMessage ? (
+          <AdminNotice body={memberList.setupMessage} tone="warning" />
         ) : null}
         {noticeConfig ? <AdminNotice {...noticeConfig} /> : null}
 
         <section className="glass-panel overflow-hidden rounded-3xl">
-          <AdminMembersSearch members={dashboard.members} />
+          <AdminMembersSearch
+            members={memberList.members}
+            page={memberList.page}
+            pageCount={memberList.pageCount}
+            pageSize={memberList.pageSize}
+            query={memberList.query}
+            totalMembers={memberList.totalMembers}
+          />
         </section>
       </section>
     </main>
   );
+}
+
+function parsePageParam(page: string | undefined) {
+  const parsedPage = Number(page);
+
+  return Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 }

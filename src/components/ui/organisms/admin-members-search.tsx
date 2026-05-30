@@ -1,59 +1,72 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { AdminMembersTable } from "@/components/ui/organisms/admin-members-table";
 import type { AdminDashboardMember } from "@/lib/admin-data";
-import { getStatusLabel } from "@/lib/atletix-data";
-
-const pageSize = 10;
 
 export function AdminMembersSearch({
   members,
+  page,
+  pageCount,
+  pageSize,
+  query,
+  totalMembers,
 }: {
   members: AdminDashboardMember[];
+  page: number;
+  pageCount: number;
+  pageSize: number;
+  query: string;
+  totalMembers: number;
 }) {
-  const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
-  const filteredMembers = useMemo(() => {
-    const normalizedQuery = normalizeSearchValue(query);
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [searchState, setSearchState] = useState({
+    query,
+    value: query,
+  });
+  const search = searchState.query === query ? searchState.value : query;
+  const firstItem = totalMembers ? (page - 1) * pageSize + 1 : 0;
+  const lastItem = Math.min(page * pageSize, totalMembers);
+  const countLabel = query
+    ? `${totalMembers} resultados`
+    : `${totalMembers} cuentas`;
 
-    if (!normalizedQuery) {
-      return members;
+  useEffect(() => {
+    const normalizedSearch = normalizeSearchInput(search);
+
+    if (normalizedSearch === query) {
+      return;
     }
 
-    return members.filter((member) =>
-      getSearchText(member).includes(normalizedQuery),
-    );
-  }, [members, query]);
-  const pageCount = Math.max(1, Math.ceil(filteredMembers.length / pageSize));
-  const currentPage = Math.min(page, pageCount);
-  const paginatedMembers = filteredMembers.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
-  const firstItem = filteredMembers.length
-    ? (currentPage - 1) * pageSize + 1
-    : 0;
-  const lastItem = Math.min(currentPage * pageSize, filteredMembers.length);
+    const timeout = window.setTimeout(() => {
+      startTransition(() => {
+        router.replace(getListHref(pathname, normalizedSearch, 1), {
+          scroll: false,
+        });
+      });
+    }, 400);
 
-  const countLabel = query
-    ? `${filteredMembers.length} de ${members.length} cuentas`
-    : `${members.length} cuentas`;
-
-  function updateQuery(value: string) {
-    setQuery(value);
-    setPage(1);
-  }
+    return () => window.clearTimeout(timeout);
+  }, [pathname, query, router, search]);
 
   return (
     <>
-      <div className="flex flex-col gap-4 border-b border-white/10 p-5 lg:flex-row lg:items-center lg:justify-between sm:p-6">
+      <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
             Lista completa
           </p>
           <h2 className="mt-1 text-2xl font-black text-white">{countLabel}</h2>
+          {isPending ? (
+            <p className="mt-1 text-sm font-semibold text-[#ff8bd8]">
+              Buscando...
+            </p>
+          ) : null}
         </div>
 
         <label className="relative block w-full lg:max-w-md">
@@ -65,10 +78,15 @@ export function AdminMembersSearch({
           <span className="sr-only">Buscar cuentas</span>
           <input
             className="min-h-12 w-full rounded-full border border-white/10 bg-white/[0.04] px-12 text-sm font-semibold text-white outline-none transition placeholder:text-zinc-600 focus:border-[#ff2fa8]/60 focus:bg-black/30"
-            onChange={(event) => updateQuery(event.target.value)}
+            onChange={(event) =>
+              setSearchState({
+                query,
+                value: event.target.value,
+              })
+            }
             placeholder="Buscar por nombre, correo o telefono"
             type="search"
-            value={query}
+            value={search}
           />
         </label>
       </div>
@@ -77,65 +95,105 @@ export function AdminMembersSearch({
         emptyMessage={
           query ? "No encontramos cuentas con esa busqueda." : undefined
         }
-        members={paginatedMembers}
+        members={members}
       />
 
       <div className="flex flex-col gap-4 border-t border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <p className="text-sm font-semibold text-zinc-500">
-          Mostrando {firstItem}-{lastItem} de {filteredMembers.length}
+          Mostrando {firstItem}-{lastItem} de {totalMembers}
         </p>
 
         <div className="flex items-center justify-between gap-3 sm:justify-end">
-          <button
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-black text-zinc-200 transition hover:border-[#ff2fa8]/45 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
-            disabled={currentPage <= 1}
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
-            type="button"
-          >
-            <ChevronLeft size={17} />
-            Anterior
-          </button>
+          {page <= 1 ? (
+            <PaginationButton disabled label="Anterior" side="left" />
+          ) : (
+            <PaginationLink
+              href={getListHref(pathname, query, page - 1)}
+              label="Anterior"
+              side="left"
+            />
+          )}
 
           <span className="shrink-0 text-sm font-black text-white">
-            {currentPage}/{pageCount}
+            {page}/{pageCount}
           </span>
 
-          <button
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-black text-zinc-200 transition hover:border-[#ff2fa8]/45 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
-            disabled={currentPage >= pageCount}
-            onClick={() =>
-              setPage((current) => Math.min(pageCount, current + 1))
-            }
-            type="button"
-          >
-            Siguiente
-            <ChevronRight size={17} />
-          </button>
+          {page >= pageCount ? (
+            <PaginationButton disabled label="Siguiente" side="right" />
+          ) : (
+            <PaginationLink
+              href={getListHref(pathname, query, page + 1)}
+              label="Siguiente"
+              side="right"
+            />
+          )}
         </div>
       </div>
     </>
   );
 }
 
-function getSearchText(member: AdminDashboardMember) {
-  return normalizeSearchValue(
-    [
-      member.name,
-      member.email,
-      member.phone,
-      member.goal,
-      member.routineName,
-      member.routineDay,
-      member.status,
-      getStatusLabel(member.status),
-    ].join(" "),
+function PaginationLink({
+  href,
+  label,
+  side,
+}: {
+  href: string;
+  label: string;
+  side: "left" | "right";
+}) {
+  return (
+    <Link
+      className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-black text-zinc-200 transition hover:border-[#ff2fa8]/45 hover:text-white sm:flex-none"
+      href={href}
+      scroll={false}
+    >
+      {side === "left" ? <ChevronLeft size={17} /> : null}
+      {label}
+      {side === "right" ? <ChevronRight size={17} /> : null}
+    </Link>
   );
 }
 
-function normalizeSearchValue(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
+function PaginationButton({
+  disabled,
+  label,
+  side,
+}: {
+  disabled: boolean;
+  label: string;
+  side: "left" | "right";
+}) {
+  return (
+    <button
+      className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-sm font-black text-zinc-200 transition disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
+      disabled={disabled}
+      type="button"
+    >
+      {side === "left" ? <ChevronLeft size={17} /> : null}
+      {label}
+      {side === "right" ? <ChevronRight size={17} /> : null}
+    </button>
+  );
+}
+
+function getListHref(pathname: string, query: string, page: number) {
+  const params = new URLSearchParams();
+  const normalizedQuery = normalizeSearchInput(query);
+
+  if (normalizedQuery) {
+    params.set("q", normalizedQuery);
+  }
+
+  if (page > 1) {
+    params.set("page", String(page));
+  }
+
+  const serializedParams = params.toString();
+
+  return serializedParams ? `${pathname}?${serializedParams}` : pathname;
+}
+
+function normalizeSearchInput(value: string) {
+  return value.trim().replace(/\s+/g, " ");
 }

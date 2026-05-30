@@ -18,6 +18,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        destination: "/admin/cuentas/:path*",
+        permanent: true,
+        source: "/admin/clientas/:path*",
+      },
+      {
+        destination: "/cuentas/:path*",
+        permanent: true,
+        source: "/clientes/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

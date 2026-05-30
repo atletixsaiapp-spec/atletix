@@ -15,8 +15,8 @@ import {
   hasSupabaseAdminConfig,
 } from "@/utils/supabase/admin";
 
-const createClientPath = "/admin/clientas/nueva";
-const importClientPath = "/admin/clientas/importar";
+const createClientPath = "/admin/cuentas/nueva";
+const importClientPath = "/admin/cuentas/importar";
 
 export async function createMemberAccount(formData: FormData) {
   await requireAdmin();
@@ -141,7 +141,7 @@ export async function bulkInviteMembers(formData: FormData) {
 
 function revalidateAdminPaths() {
   revalidatePath("/admin");
-  revalidatePath("/admin/clientas");
+  revalidatePath("/admin/cuentas");
   revalidatePath(createClientPath);
   revalidatePath(importClientPath);
 }

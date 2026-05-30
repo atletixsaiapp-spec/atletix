@@ -33,7 +33,7 @@ import {
   deleteMemberAccount,
   revokeMemberMembership,
   updateMemberProfile,
-} from "@/app/clientes/[id]/actions";
+} from "@/app/cuentas/[id]/actions";
 import {
   addOneMonth,
   dateKey,
@@ -120,7 +120,7 @@ const noticeCopy: Record<
   },
 };
 
-export default async function ClientDetailPage({
+export default async function AccountDetailPage({
   params,
   searchParams,
 }: {
@@ -581,7 +581,7 @@ export default async function ClientDetailPage({
 function BackLink() {
   return (
     <Link
-      href="/admin/clientas"
+      href="/admin/cuentas"
       className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-[#ff2fa8]/50 hover:text-white"
     >
       <ArrowLeft size={16} />
