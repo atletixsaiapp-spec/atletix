@@ -2,6 +2,8 @@ import { createAdminClient, hasSupabaseAdminConfig } from "@/utils/supabase/admi
 
 export type AttendanceMember = {
   email: string;
+  groupId: string | null;
+  groupName: string;
   id: string;
   isActive: boolean;
   name: string;
@@ -10,6 +12,7 @@ export type AttendanceMember = {
 
 export type TodayAttendanceLog = {
   completedAt: string;
+  groupName: string;
   id: string;
   memberId: string;
   memberName: string;
@@ -25,13 +28,21 @@ export type AdminAttendanceData = {
 type MemberRow = {
   email: string;
   full_name: string;
+  group_id: string | null;
   id: string;
   is_active: boolean;
   phone: string | null;
 };
 
+type TrainingGroupRow = {
+  id: string;
+  name: string;
+  start_time: string;
+};
+
 type WorkoutLogRow = {
   completed_at: string;
+  group_id: string | null;
   id: string;
   member_id: string;
 };
@@ -50,27 +61,40 @@ export async function getAdminAttendanceData(): Promise<AdminAttendanceData> {
   try {
     const supabase = createAdminClient();
     const { start, end } = getBogotaDayRange(new Date());
-    const [membersResult, logsResult] = await Promise.all([
+    const [membersResult, logsResult, groupsResult] = await Promise.all([
       supabase
         .from("members")
-        .select("id,full_name,email,phone,is_active")
+        .select("id,full_name,email,phone,group_id,is_active")
         .order("full_name", { ascending: true }),
       supabase
         .from("workout_logs")
-        .select("id,member_id,completed_at")
+        .select("id,member_id,group_id,completed_at")
         .gte("completed_at", start.toISOString())
         .lt("completed_at", end.toISOString())
         .order("completed_at", { ascending: false }),
+      supabase
+        .from("training_groups")
+        .select("id,name,start_time")
+        .order("sort_order", { ascending: true })
+        .order("start_time", { ascending: true }),
     ]);
 
-    const firstError = membersResult.error ?? logsResult.error;
+    const firstError = membersResult.error ?? logsResult.error ?? groupsResult.error;
 
     if (firstError) {
       throw firstError;
     }
 
+    const groups = (groupsResult.data ?? []) as TrainingGroupRow[];
+    const groupById = new Map(
+      groups.map((group) => [group.id, formatGroupName(group)]),
+    );
     const members = ((membersResult.data ?? []) as MemberRow[]).map((member) => ({
       email: member.email,
+      groupId: member.group_id,
+      groupName: member.group_id
+        ? (groupById.get(member.group_id) ?? "Grupo eliminado")
+        : "Sin grupo",
       id: member.id,
       isActive: member.is_active,
       name: member.full_name,
@@ -83,6 +107,9 @@ export async function getAdminAttendanceData(): Promise<AdminAttendanceData> {
       members,
       todayLogs: ((logsResult.data ?? []) as WorkoutLogRow[]).map((log) => ({
         completedAt: log.completed_at,
+        groupName: log.group_id
+          ? (groupById.get(log.group_id) ?? "Grupo eliminado")
+          : (memberById.get(log.member_id)?.groupName ?? "Sin grupo"),
         id: log.id,
         memberId: log.member_id,
         memberName: memberById.get(log.member_id)?.name ?? "Cuenta eliminada",
@@ -99,6 +126,10 @@ export async function getAdminAttendanceData(): Promise<AdminAttendanceData> {
       todayLogs: [],
     };
   }
+}
+
+function formatGroupName(group: TrainingGroupRow) {
+  return group.name || group.start_time.slice(0, 5);
 }
 
 export function getBogotaDayRange(date: Date) {

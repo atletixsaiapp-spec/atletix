@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { AdminDashboardMember } from "@/lib/admin-data";
 import { getDaysUntil } from "@/lib/admin-data";
 import { formatShortDate } from "@/lib/atletix-data";
+import { ProfileAvatarPreviewButton } from "@/components/ui/atoms/profile-avatar-preview-button";
 import { StatusBadge } from "@/components/ui/atoms/status-badge";
 
 export function AdminMembersTable({
@@ -53,24 +54,31 @@ function MemberCard({ member }: { member: AdminDashboardMember }) {
   const days = member.membershipEnd ? getDaysUntil(member.membershipEnd) : null;
 
   return (
-    <Link
-      className="block rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-[#ff2fa8]/50 hover:bg-[#ff2fa8]/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff8bd8]"
-      href={`/cuentas/${member.id}`}
-    >
+    <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-[#ff2fa8]/50 hover:bg-[#ff2fa8]/[0.04]">
       <div className="flex items-start gap-3">
-        <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#ff2fa8]/15 font-black text-[#ff8bd8]">
-          {member.initials}
-        </div>
+        <ProfileAvatarPreviewButton
+          alt={`Foto de ${member.name}`}
+          avatarUrl={member.avatarUrl}
+          className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-[#ff2fa8]/15 font-black text-[#ff8bd8]"
+          imageSize={44}
+          initials={member.initials}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div className="min-w-0">
+            <Link
+              className="min-w-0 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
+              href={`/cuentas/${member.id}`}
+            >
               <p className="truncate font-black text-white">{member.name}</p>
               <p className="text-sm text-zinc-500">{member.goal}</p>
-            </div>
+            </Link>
             <StatusBadge status={member.status} />
           </div>
 
-          <div className="mt-4 grid gap-3 text-sm">
+          <Link
+            className="mt-4 grid gap-3 rounded-xl text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
+            href={`/cuentas/${member.id}`}
+          >
             <MobileField label="Correo" value={member.email} />
             <MobileField label="Telefono" value={member.phone || "Sin telefono"} />
             <MobileField
@@ -83,15 +91,15 @@ function MemberCard({ member }: { member: AdminDashboardMember }) {
               detail={
                 days === null
                   ? "Sin membresia"
-                  : days >= 0
-                    ? `${days} dias restantes`
-                    : `${Math.abs(days)} dias de atraso`
+                : days >= 0
+                  ? `${days} dias restantes`
+                  : `${Math.abs(days)} dias de atraso`
               }
             />
-          </div>
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -121,18 +129,22 @@ function MemberRow({ member }: { member: AdminDashboardMember }) {
   return (
     <tr className="bg-white/[0.015] transition hover:bg-[#ff2fa8]/[0.035]">
       <td className="px-5 py-4">
-        <Link
-          className="flex items-center gap-3 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
-          href={`/cuentas/${member.id}`}
-        >
-          <div className="grid size-11 place-items-center rounded-2xl bg-[#ff2fa8]/15 font-black text-[#ff8bd8]">
-            {member.initials}
-          </div>
-          <div>
+        <div className="flex items-center gap-3">
+          <ProfileAvatarPreviewButton
+            alt={`Foto de ${member.name}`}
+            avatarUrl={member.avatarUrl}
+            className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-[#ff2fa8]/15 font-black text-[#ff8bd8]"
+            imageSize={44}
+            initials={member.initials}
+          />
+          <Link
+            className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
+            href={`/cuentas/${member.id}`}
+          >
             <p className="font-black text-white">{member.name}</p>
             <p className="text-sm text-zinc-500">{member.goal}</p>
-          </div>
-        </Link>
+          </Link>
+        </div>
       </td>
       <td className="px-5 py-4">
         <Link

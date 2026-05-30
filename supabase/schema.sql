@@ -219,6 +219,7 @@ create table public.exercises (
 create table public.workout_logs (
   id uuid primary key default gen_random_uuid(),
   member_id uuid not null references public.members(id) on delete cascade,
+  group_id uuid references public.training_groups(id) on delete set null,
   routine_id uuid references public.routines(id) on delete set null,
   completed_at timestamptz not null default now(),
   xp_awarded integer not null default 50,

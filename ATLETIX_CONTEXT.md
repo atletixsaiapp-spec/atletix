@@ -193,6 +193,7 @@ Current backend notes:
 13. Waitlist entries live in `waitlist_entries`; `/lista-espera` writes only to that table. Admins convert a pending waitlist record from `/admin/lista-espera`, assigning an available group first, then the shared invite helper creates the Supabase Auth user, profile, inactive member record, and welcome email link.
 14. Member payment uploads create `payments` rows with `status='pending'`, `screenshot_url`, `paid_at`, and no amount/period yet. Admins validate from `/admin/pagos`; approval fills amount/period/method, marks the payment `approved`, creates a new active membership period, and sets the member active.
 15. Payment proof screenshots are stored in the public Supabase Storage bucket `payment-proofs`.
+16. Attendance lives in `workout_logs`. Each attendance row stores `member_id` and snapshots the member's current `group_id` at check-in time, so group attendance remains accurate even if the member changes groups later.
 
 ## Vercel
 

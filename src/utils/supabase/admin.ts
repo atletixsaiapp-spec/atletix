@@ -232,6 +232,7 @@ type Database = {
       workout_logs: {
         Insert: {
           completed_at?: string;
+          group_id?: string | null;
           member_id: string;
           notes?: string | null;
           routine_id?: string | null;
@@ -239,6 +240,7 @@ type Database = {
         };
         Row: {
           completed_at: string;
+          group_id: string | null;
           id: string;
           member_id: string;
           notes: string | null;

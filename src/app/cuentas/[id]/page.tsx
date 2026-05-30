@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
+import { ProfileAvatarPreviewButton } from "@/components/ui/atoms/profile-avatar-preview-button";
 import { ProfileMetric } from "@/components/ui/atoms/profile-metric";
 import { StatusBadge } from "@/components/ui/atoms/status-badge";
 import {
@@ -189,9 +190,12 @@ export default async function AccountDetailPage({
             <div className="mt-6 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
               <div className="flex flex-col gap-5">
                 <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center">
-                  <div className="avatar-aura grid size-20 shrink-0 place-items-center rounded-full border border-[#ff2fa8]/50 bg-[#ff2fa8]/10 text-2xl font-black text-white">
-                    {member.initials}
-                  </div>
+                  <ProfileAvatarPreviewButton
+                    alt={`Foto de ${member.name}`}
+                    avatarUrl={member.avatarUrl}
+                    className="avatar-aura grid size-20 shrink-0 place-items-center overflow-hidden rounded-full border border-[#ff2fa8]/50 bg-[#ff2fa8]/10 text-2xl font-black text-white"
+                    initials={member.initials}
+                  />
                   <div className="min-w-0">
                     <h1 className="break-words text-3xl font-black text-white">
                       {member.name}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Search, UserRound } from "lucide-react";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
+import { SearchableMemberSelect } from "@/components/ui/atoms/searchable-member-select";
 import { AttendanceScanner } from "@/components/ui/organisms/attendance-scanner";
 import { TopNav } from "@/components/ui/organisms/top-nav";
 import {
@@ -101,21 +102,18 @@ export default async function AdminAttendancePage({
             </div>
 
             <form action={trackAttendanceManually} className="mt-5 grid gap-4">
-              <label className="text-[0.72rem] font-black uppercase tracking-[0.16em] text-zinc-500">
-                Cuenta
-                <select
-                  className="mt-2 min-h-12 w-full rounded-2xl border border-white/10 bg-black/30 px-4 text-sm font-semibold text-white outline-none transition focus:border-[#ff2fa8]/60"
-                  name="memberId"
-                  required
-                >
-                  <option value="">Selecciona una cuenta</option>
-                  {activeMembers.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name} / {item.email}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <div>
+                <p className="text-[0.72rem] font-black uppercase tracking-[0.16em] text-zinc-500">
+                  Cuenta
+                </p>
+                <div className="mt-2">
+                  <SearchableMemberSelect
+                    emptyMessage="No hay cuentas activas disponibles."
+                    name="memberId"
+                    options={activeMembers}
+                  />
+                </div>
+              </div>
 
               <PendingSubmitButton
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-zinc-200"
@@ -148,7 +146,12 @@ export default async function AdminAttendancePage({
                   key={log.id}
                   className="grid gap-2 rounded-2xl border border-white/10 bg-white/[0.035] p-4 sm:grid-cols-[1fr_auto] sm:items-center"
                 >
-                  <p className="font-black text-white">{log.memberName}</p>
+                  <div>
+                    <p className="font-black text-white">{log.memberName}</p>
+                    <p className="mt-1 text-sm font-semibold text-[#ff8bd8]">
+                      {log.groupName}
+                    </p>
+                  </div>
                   <p className="text-sm font-semibold text-zinc-400">
                     {formatAttendanceTime(log.completedAt)}
                   </p>

@@ -1,11 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import { Camera, Trash2 } from "lucide-react";
-import {
-  deleteProfileAvatar,
-  uploadProfileAvatar,
-} from "@/app/profile-image/actions";
+import { Camera } from "lucide-react";
+import { uploadProfileAvatar } from "@/app/profile-image/actions";
+import { ProfileAvatarPreviewButton } from "@/components/ui/atoms/profile-avatar-preview-button";
 
 type ProfileAvatarManagerProps = {
   avatarUrl: string | null;
@@ -75,19 +72,6 @@ export function EditableAvatarPreview({
         </label>
       </form>
 
-      {avatarUrl ? (
-        <form action={deleteProfileAvatar}>
-          <input name="destination" type="hidden" value={destination} />
-          <button
-            className="absolute -bottom-1 -left-1 grid size-9 place-items-center rounded-full border border-red-200/30 bg-red-500 text-white shadow-[0_0_18px_rgba(239,68,68,0.3)] transition hover:bg-red-400"
-            title="Eliminar foto"
-            type="submit"
-          >
-            <Trash2 size={16} />
-            <span className="sr-only">Eliminar foto</span>
-          </button>
-        </form>
-      ) : null}
     </div>
   );
 }
@@ -100,18 +84,10 @@ export function AvatarPreview({
   initials: string;
 }) {
   return (
-    <div className="avatar-aura grid size-20 shrink-0 place-items-center overflow-hidden rounded-full border border-[#ff2fa8]/50 bg-[#ff2fa8]/10 text-2xl font-black text-white">
-      {avatarUrl ? (
-        <Image
-          alt="Foto de perfil"
-          className="h-full w-full object-cover"
-          height={80}
-          src={avatarUrl}
-          width={80}
-        />
-      ) : (
-        initials || "A"
-      )}
-    </div>
+    <ProfileAvatarPreviewButton
+      avatarUrl={avatarUrl}
+      className="avatar-aura grid size-20 shrink-0 place-items-center overflow-hidden rounded-full border border-[#ff2fa8]/50 bg-[#ff2fa8]/10 text-2xl font-black text-white"
+      initials={initials}
+    />
   );
 }

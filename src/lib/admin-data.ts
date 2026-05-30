@@ -5,6 +5,7 @@ import {
 } from "@/utils/supabase/admin";
 
 export type AdminDashboardMember = {
+  avatarUrl: string | null;
   email: string;
   goal: string;
   id: string;
@@ -64,6 +65,7 @@ type MemberRow = {
   is_active: boolean;
   joined_at: string;
   phone: string | null;
+  user_id: string | null;
 };
 
 type MembershipRow = {
@@ -136,7 +138,7 @@ export async function getAdminMembersList({
     let membersQuery = supabase
       .from("members")
       .select(
-        "id,full_name,email,phone,goal,joined_at,current_weight_kg,initial_weight_kg,is_active",
+        "id,user_id,full_name,email,phone,goal,joined_at,current_weight_kg,initial_weight_kg,is_active",
         { count: "exact" },
       )
       .order("created_at", { ascending: false })
@@ -168,14 +170,20 @@ export async function getAdminMembersList({
 
     const members = (membersResult.data ?? []) as MemberRow[];
     const memberIds = members.map((member) => member.id);
-    const memberships = memberIds.length
-      ? await getLatestMembershipsForMembers(memberIds)
-      : new Map<string, MembershipRow>();
+    const [memberships, avatarUrls] = await Promise.all([
+      memberIds.length
+        ? getLatestMembershipsForMembers(memberIds)
+        : new Map<string, MembershipRow>(),
+      getProfileAvatarUrlsForMembers(members),
+    ]);
 
     return {
       isConfigured: true,
       members: members.map((member) =>
         mapAdminDashboardMember({
+          avatarUrl: member.user_id
+            ? avatarUrls.get(member.user_id) ?? null
+            : null,
           member,
           membership: memberships.get(member.id),
         }),
@@ -228,7 +236,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       supabase
         .from("members")
         .select(
-          "id,full_name,email,phone,goal,joined_at,current_weight_kg,initial_weight_kg,is_active",
+          "id,user_id,full_name,email,phone,goal,joined_at,current_weight_kg,initial_weight_kg,is_active",
         )
         .order("created_at", { ascending: false }),
       supabase
@@ -263,6 +271,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     const routineAssignments = (routineAssignmentsResult.data ??
       []) as RoutineAssignmentRow[];
     const routines = (routinesResult.data ?? []) as RoutineRow[];
+    const avatarUrls = await getProfileAvatarUrlsForMembers(members);
 
     const latestMembershipByMember = new Map<string, MembershipRow>();
     memberships.forEach((membership) => {
@@ -303,6 +312,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
 
     const dashboardMembers = members.map((member) =>
       mapAdminDashboardMember({
+        avatarUrl: member.user_id ? avatarUrls.get(member.user_id) ?? null : null,
         member,
         membership: latestMembershipByMember.get(member.id),
         routine: currentRoutineByMember.get(member.id),
@@ -381,11 +391,13 @@ async function getLatestMembershipsForMembers(memberIds: string[]) {
 }
 
 function mapAdminDashboardMember({
+  avatarUrl = null,
   member,
   membership,
   routine,
   weeklyCompleted = 0,
 }: {
+  avatarUrl?: string | null;
   member: MemberRow;
   membership?: MembershipRow;
   routine?: RoutineRow;
@@ -394,6 +406,7 @@ function mapAdminDashboardMember({
   const status = getMembershipStatusFromDate(membership?.end_date ?? null);
 
   return {
+    avatarUrl,
     email: member.email,
     goal: member.goal,
     id: member.id,
@@ -408,6 +421,36 @@ function mapAdminDashboardMember({
     status,
     weeklyCompleted,
   };
+}
+
+async function getProfileAvatarUrlsForMembers(members: MemberRow[]) {
+  const userIds = Array.from(
+    new Set(
+      members
+        .map((member) => member.user_id)
+        .filter((userId): userId is string => Boolean(userId)),
+    ),
+  );
+
+  if (!userIds.length) {
+    return new Map<string, string | null>();
+  }
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id,avatar_url")
+    .in("id", userIds);
+
+  if (error) {
+    return new Map<string, string | null>();
+  }
+
+  return new Map(
+    ((data ?? []) as { avatar_url: string | null; id: string }[]).map(
+      (profile) => [profile.id, profile.avatar_url],
+    ),
+  );
 }
 
 function normalizeMemberSearchQuery(query: string) {

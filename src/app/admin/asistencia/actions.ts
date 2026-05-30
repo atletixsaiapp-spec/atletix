@@ -46,7 +46,7 @@ async function recordAttendance(memberId: string, source: "manual" | "qr") {
   const supabase = createAdminClient();
   const { data: member, error: memberError } = await supabase
     .from("members")
-    .select("id,full_name,is_active")
+    .select("id,full_name,group_id,is_active")
     .eq("id", memberId)
     .maybeSingle();
 
@@ -74,6 +74,7 @@ async function recordAttendance(memberId: string, source: "manual" | "qr") {
 
   const { error: insertError } = await supabase.from("workout_logs").insert({
     completed_at: new Date().toISOString(),
+    group_id: member.group_id,
     member_id: memberId,
     notes: `Asistencia registrada por ${source === "qr" ? "QR" : "seleccion manual"}.`,
     xp_awarded: 50,

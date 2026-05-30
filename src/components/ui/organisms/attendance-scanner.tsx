@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import jsQR from "jsqr";
 import { Camera, CameraOff, ScanQrCode } from "lucide-react";
 
 type Action = (formData: FormData) => Promise<void> | void;
@@ -18,8 +19,10 @@ declare global {
 }
 
 export function AttendanceScanner({ action }: { action: Action }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isSubmittingRef = useRef(false);
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const frameRef = useRef<number | null>(null);
@@ -34,8 +37,8 @@ export function AttendanceScanner({ action }: { action: Action }) {
   async function startScanner() {
     setError(null);
 
-    if (!window.BarcodeDetector) {
-      setError("Este navegador no soporta escaneo QR con camara.");
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError("Este navegador no permite abrir la camara. Usa registro manual.");
       return;
     }
 
@@ -52,7 +55,9 @@ export function AttendanceScanner({ action }: { action: Action }) {
         await videoRef.current.play();
       }
 
-      const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+      const detector = window.BarcodeDetector
+        ? new window.BarcodeDetector({ formats: ["qr_code"] })
+        : null;
       scanFrame(detector);
     } catch {
       setError("No se pudo abrir la camara. Revisa permisos o usa registro manual.");
@@ -60,21 +65,19 @@ export function AttendanceScanner({ action }: { action: Action }) {
     }
   }
 
-  function scanFrame(detector: InstanceType<BarcodeDetectorConstructor>) {
+  function scanFrame(detector: InstanceType<BarcodeDetectorConstructor> | null) {
     const video = videoRef.current;
 
-    if (!video || isSubmitting) {
+    if (!video || isSubmittingRef.current) {
       return;
     }
 
-    detector
-      .detect(video)
+    detectQrToken(video, detector)
       .then((codes) => {
-        const token = codes[0]?.rawValue;
-
-        if (token && inputRef.current && formRef.current) {
+        if (codes && inputRef.current && formRef.current) {
+          isSubmittingRef.current = true;
           setIsSubmitting(true);
-          inputRef.current.value = token;
+          inputRef.current.value = codes;
           stopScanner();
           formRef.current.requestSubmit();
           return;
@@ -85,6 +88,67 @@ export function AttendanceScanner({ action }: { action: Action }) {
       .catch(() => {
         frameRef.current = window.requestAnimationFrame(() => scanFrame(detector));
       });
+  }
+
+  async function detectQrToken(
+    video: HTMLVideoElement,
+    detector: InstanceType<BarcodeDetectorConstructor> | null,
+  ) {
+    if (detector) {
+      const codes = await detector.detect(video);
+
+      return codes[0]?.rawValue ?? null;
+    }
+
+    return detectQrTokenWithCanvas(video);
+  }
+
+  function detectQrTokenWithCanvas(video: HTMLVideoElement) {
+    if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      return null;
+    }
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    if (!width || !height) {
+      return null;
+    }
+
+    const canvas = getScannerCanvas(width, height);
+    const context = canvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    if (!context) {
+      return null;
+    }
+
+    context.drawImage(video, 0, 0, width, height);
+    const imageData = context.getImageData(0, 0, width, height);
+    const result = jsQR(imageData.data, width, height, {
+      inversionAttempts: "dontInvert",
+    });
+
+    return result?.data ?? null;
+  }
+
+  function getScannerCanvas(width: number, height: number) {
+    if (!canvasRef.current) {
+      canvasRef.current = document.createElement("canvas");
+    }
+
+    const canvas = canvasRef.current;
+
+    if (canvas.width !== width) {
+      canvas.width = width;
+    }
+
+    if (canvas.height !== height) {
+      canvas.height = height;
+    }
+
+    return canvas;
   }
 
   function stopScanner() {
