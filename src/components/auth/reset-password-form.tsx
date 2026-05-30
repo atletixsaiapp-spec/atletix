@@ -1,50 +1,10 @@
-"use client";
-
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
-import { LoadingSpinner } from "@/components/ui/atoms/loading-spinner";
-import { createClient } from "@/utils/supabase/client";
+import { updatePassword } from "@/app/reset-password/actions";
+import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 
 export function ResetPasswordForm() {
-  const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-
-  function handleSubmit(formData: FormData) {
-    const password = String(formData.get("password") ?? "");
-    const confirmPassword = String(formData.get("confirmPassword") ?? "");
-
-    startTransition(async () => {
-      setMessage(null);
-
-      if (password.length < 8) {
-        setMessage("Usa mínimo 8 caracteres.");
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        setMessage("Las contraseñas no coinciden.");
-        return;
-      }
-
-      const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({ password });
-
-      if (error) {
-        setMessage(
-          "No pudimos actualizar tu contraseña. Abre de nuevo el enlace del correo.",
-        );
-        return;
-      }
-
-      router.replace("/onboarding");
-      router.refresh();
-    });
-  }
-
   return (
-    <form action={handleSubmit} className="mt-6 space-y-4">
+    <form action={updatePassword} className="mt-6 space-y-4">
       <label className="block">
         <span className="text-xs font-black uppercase tracking-[0.16em] text-zinc-500">
           Nueva contraseña
@@ -79,25 +39,12 @@ export function ResetPasswordForm() {
         </div>
       </label>
 
-      <button
-        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a] disabled:cursor-not-allowed disabled:opacity-70"
-        disabled={isPending}
+      <PendingSubmitButton
+        className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]"
+        pendingLabel="Guardando y entrando..."
       >
-        {isPending ? (
-          <>
-            <LoadingSpinner />
-            Guardando y entrando...
-          </>
-        ) : (
-          "Guardar contraseña"
-        )}
-      </button>
-
-      {message ? (
-        <p className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm font-semibold text-zinc-200">
-          {message}
-        </p>
-      ) : null}
+        Guardar contraseña
+      </PendingSubmitButton>
     </form>
   );
 }

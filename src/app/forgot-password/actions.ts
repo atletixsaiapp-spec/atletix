@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { isValidEmail } from "@/lib/bulk-invite";
 import { hasEmailConfig, sendPasswordResetEmail } from "@/lib/email";
@@ -38,7 +39,7 @@ export async function requestPasswordReset(formData: FormData) {
     redirectWithNotice("sent");
   }
 
-  const siteUrl = getSiteUrl();
+  const siteUrl = await getPasswordResetSiteUrl();
   const resetUrl = new URL("/auth/confirm", siteUrl);
   resetUrl.searchParams.set("token_hash", recoveryLink.properties.hashed_token);
   resetUrl.searchParams.set("type", "recovery");
@@ -74,6 +75,28 @@ async function getProfileNameByEmail(
   }
 
   return data?.full_name ?? null;
+}
+
+async function getPasswordResetSiteUrl() {
+  const headerStore = await headers();
+  const forwardedHost = headerStore.get("x-forwarded-host");
+  const host = forwardedHost ?? headerStore.get("host");
+
+  if (!host || !isLocalHost(host)) {
+    return getSiteUrl();
+  }
+
+  const protocol = headerStore.get("x-forwarded-proto") ?? "http";
+  return `${protocol}://${host}`;
+}
+
+function isLocalHost(host: string) {
+  const hostname = host.split(":")[0];
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "0.0.0.0"
+  );
 }
 
 function redirectWithNotice(notice: string): never {

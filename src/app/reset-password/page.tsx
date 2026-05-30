@@ -1,7 +1,40 @@
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { TopNav } from "@/components/ui/organisms/top-nav";
 
-export default function ResetPasswordPage() {
+const noticeCopy: Record<
+  string,
+  {
+    body: string;
+    tone: "error" | "warning";
+  }
+> = {
+  missing_session: {
+    body: "Abre de nuevo el enlace del correo para crear tu contraseña.",
+    tone: "warning",
+  },
+  password_mismatch: {
+    body: "Las contraseñas no coinciden.",
+    tone: "error",
+  },
+  password_short: {
+    body: "Usa minimo 8 caracteres.",
+    tone: "error",
+  },
+  update_failed: {
+    body: "No pudimos actualizar tu contraseña. Abre de nuevo el enlace del correo.",
+    tone: "error",
+  },
+};
+
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string }>;
+}) {
+  const { notice } = await searchParams;
+  const noticeMessage = notice ? noticeCopy[notice] : null;
+
   return (
     <main className="atletix-shell min-h-screen">
       <TopNav active="login" mode="public" />
@@ -18,6 +51,12 @@ export default function ResetPasswordPage() {
             Usa el enlace que recibiste por correo para actualizar tu acceso. Al
             guardar, te llevaremos al siguiente paso de tu cuenta.
           </p>
+
+          {noticeMessage ? (
+            <div className="mt-6">
+              <AdminNotice body={noticeMessage.body} tone={noticeMessage.tone} />
+            </div>
+          ) : null}
 
           <ResetPasswordForm />
         </div>
