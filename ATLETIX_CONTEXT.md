@@ -49,14 +49,19 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 
 - `/` redirects signed-in users to their saved area, otherwise to `/login`
 - `/login` public account login; redirects existing account sessions to `/dashboard` or `/onboarding`
+- `/lista-espera` public waitlist form; stores requests separately from account signup
 - `/admin/login` public admin login; redirects existing admin sessions to `/admin`
 - `/demo` public seeded visual demo
 - `/dashboard` protected account dashboard backed by Supabase data
+- `/pagos` protected paginated member payment history with infinite scroll
+- `/pagos/agregar` protected member payment proof upload form
 - `/onboarding` protected account completion flow shown until required member fields are complete
 - `/admin` protected trainer/admin dashboard
+- `/admin/pagos` protected admin payment validation page
 - `/admin/clientas` protected full account list page
 - `/admin/clientas/nueva` protected single account invite page
 - `/admin/clientas/importar` protected bulk account invite/import page
+- `/admin/lista-espera` protected waitlist queue where admins assign a group and create an invited account from a waitlist record
 - `/clientes/[id]` protected admin account detail page
 - `/auth/confirm` Supabase token confirmation route used by invite emails before redirecting to password setup
 - `/reset-password` account password setup/reset page used after email invite confirmation
@@ -65,17 +70,26 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 
 - `src/app/page.tsx` redirects to the right area based on existing session
 - `src/app/login/page.tsx` public account login with existing-session redirect
+- `src/app/lista-espera/page.tsx` public waitlist entry form
+- `src/app/lista-espera/actions.ts` public waitlist server action
 - `src/app/admin/login/page.tsx` public admin login with existing-session redirect
 - `src/app/demo/page.tsx` seeded visual demo
 - `src/app/dashboard/page.tsx` protected account dashboard route
+- `src/app/pagos/page.tsx` protected member payment history route
+- `src/app/pagos/agregar/page.tsx` protected member payment proof upload route
+- `src/app/pagos/actions.ts` member payment proof upload and payment pagination actions
 - `src/components/ui/organisms/member-dashboard.tsx` shared account dashboard UI
 - `src/lib/member-dashboard.ts` account dashboard data loader/fallback mapper
 - `src/app/onboarding/page.tsx` protected account completion page
 - `src/app/onboarding/actions.ts` server action for saving onboarding fields
 - `src/app/admin/page.tsx` protected admin dashboard
+- `src/app/admin/pagos/page.tsx` protected admin payment validation page
+- `src/app/admin/pagos/actions.ts` admin payment approve/reject actions
 - `src/app/admin/clientas/page.tsx` protected full account list page
 - `src/app/admin/clientas/nueva/page.tsx` protected single account invite page
 - `src/app/admin/clientas/importar/page.tsx` protected bulk account invite/import page
+- `src/app/admin/lista-espera/page.tsx` protected admin waitlist page
+- `src/app/admin/lista-espera/actions.ts` admin waitlist conversion and archive actions
 - `src/app/admin/actions.ts` admin server actions for creating account invites and bulk imports
 - `src/app/auth/actions.ts` auth server actions
 - `src/app/auth/confirm/route.ts` verifies Supabase invite/recovery token hashes and sets the session cookie
@@ -92,11 +106,16 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `src/components/ui/icons/*` shared icon exports
 - `src/components/ui/organisms/*` reusable larger UI pieces such as top nav, admin member table, and invite forms
 - `src/components/ui/organisms/top-nav.tsx` supports `mode="public" | "member" | "admin"`; use public mode only on public entry screens.
+- `src/components/ui/organisms/waitlist-form.tsx` public waitlist form component
+- `src/components/ui/organisms/payment-proof-form.tsx` member payment proof upload form
+- `src/components/ui/organisms/payment-history-list.tsx` infinite-scroll member payment history
 - `src/lib/admin-data.ts` Supabase-backed admin dashboard loader
 - `src/lib/admin-member-detail.ts` Supabase-backed account detail loader and derived metrics
 - `src/lib/admin-session.ts` env-backed admin session cookie helpers
 - `src/lib/auth.ts` server-side auth/role guards
 - `src/lib/email.ts` Resend email helper
+- `src/lib/member-invite.ts` shared member account creation and welcome-email invite helper
+- `src/lib/payments.ts` payment list loaders for member/admin payment views
 - `src/lib/site.ts` site URL helper for email links
 - `src/lib/atletix-data.ts` seeded demo data
 - `src/utils/supabase/admin.ts` Supabase service role admin helper
@@ -116,6 +135,7 @@ Current app env vars:
 - `ATLETIX_ADMIN_PASSWORD`
 - `ATLETIX_ADMIN_SESSION_SECRET` optional; when omitted, admin password is used to sign the session cookie
 - `ATLETIX_SITE_URL` canonical public app URL for emails; production should be `https://www.atletix.co`
+- `CRON_SECRET` required by Vercel Cron endpoints; Vercel sends it as a bearer token
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - `RESEND_API_KEY`
@@ -142,7 +162,11 @@ The schema in `supabase/schema.sql` includes:
 
 - profiles
 - members
+- membership_plans
 - memberships
+- membership_reminders
+- waitlist_entries
+- training_groups
 - payments
 - routines
 - routine_assignments
@@ -162,9 +186,13 @@ Current backend notes:
 6. Password setup auto-routes to `/onboarding`; future login/dashboard access also redirects there until required member fields are complete.
 7. Onboarding status is currently derived from existing member fields: name, phone, birth date, goal, height, and current weight. Gender is collected optionally and stored in Supabase Auth user metadata because the database schema does not yet include a `gender` column.
 8. Onboarding asks for one weight value only: `Peso de hoy`. The server stores it as `members.current_weight_kg`, uses it as `members.initial_weight_kg` only when no baseline exists yet, and creates/updates the same-day `progress_entries.weight_kg` row so weight history starts in the progress table.
-9. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions.
+9. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions. Manual membership revocation sets `members.is_active=false` and clears `members.group_id` so the group seat is released.
 10. Account invites store only `date_of_birth`, not age. Admin invite/import UI should ask for `Fecha de nacimiento`; do not show or request `EDAD`.
 11. Invited members use default goal `Salud general` until the admin edits the profile or onboarding completion collects it.
+12. Vercel Cron runs `/api/cron/expire-memberships` daily. It emails active members on the membership end date, emails a warning 1 day before deactivation, then marks the latest membership expired, clears `members.group_id`, and sets `members.is_active=false` when the latest `memberships.end_date` is at least 5 Bogotá calendar days overdue.
+13. Waitlist entries live in `waitlist_entries`; `/lista-espera` writes only to that table. Admins convert a pending waitlist record from `/admin/lista-espera`, assigning an available group first, then the shared invite helper creates the Supabase Auth user, profile, inactive member record, and welcome email link.
+14. Member payment uploads create `payments` rows with `status='pending'`, `screenshot_url`, `paid_at`, and no amount/period yet. Admins validate from `/admin/pagos`; approval fills amount/period/method, marks the payment `approved`, creates a new active membership period, and sets the member active.
+15. Payment proof screenshots are stored in the public Supabase Storage bucket `payment-proofs`.
 
 ## Vercel
 

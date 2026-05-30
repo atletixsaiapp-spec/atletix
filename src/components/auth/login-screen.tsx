@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Dumbbell, KeyRound, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { signIn } from "@/app/auth/actions";
 import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
@@ -12,7 +13,20 @@ const errorCopy: Record<string, string> = {
   admin_required: "Necesitas acceso de administrador para entrar al panel.",
 };
 
-export function ClientLoginScreen({ error }: { error?: string }) {
+const noticeCopy: Record<string, string> = {
+  invalid_auth_link:
+    "El enlace no es valido o ya expiro. Pide un nuevo enlace para continuar.",
+};
+
+export function ClientLoginScreen({
+  error,
+  notice,
+}: {
+  error?: string;
+  notice?: string;
+}) {
+  const noticeMessage = notice ? noticeCopy[notice] : null;
+
   return (
     <main className="atletix-shell min-h-screen">
       <TopNav active="login" mode="public" />
@@ -28,6 +42,12 @@ export function ClientLoginScreen({ error }: { error?: string }) {
           {error ? (
             <div className="mt-4 rounded-2xl border border-red-300/20 bg-red-400/10 p-4 text-sm font-semibold text-red-100">
               {errorCopy[error] ?? "No pudimos completar el acceso."}
+            </div>
+          ) : null}
+
+          {noticeMessage ? (
+            <div className="mt-4 rounded-2xl border border-amber-300/20 bg-amber-400/10 p-4 text-sm font-semibold text-amber-100">
+              {noticeMessage}
             </div>
           ) : null}
         </div>
@@ -129,6 +149,16 @@ function LoginPanel({
           name="password"
           type="password"
         />
+        {role === "member" ? (
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-sm font-black text-[#ff8bd8] transition hover:text-white"
+            >
+              Olvidaste tu contraseña?
+            </Link>
+          </div>
+        ) : null}
         <PendingSubmitButton
           className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff2fa8] px-4 py-3 font-black text-white transition hover:bg-[#ff007a]"
           pendingLabel="Entrando..."

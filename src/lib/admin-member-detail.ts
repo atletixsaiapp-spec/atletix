@@ -1,6 +1,20 @@
 import type { MembershipStatus } from "@/lib/atletix-data";
 import { getMembershipStatusFromDate } from "@/lib/admin-data";
-import { createAdminClient, hasSupabaseAdminConfig } from "@/utils/supabase/admin";
+import { mapTrainingGroup, type TrainingGroup } from "@/lib/training-groups";
+import {
+  createAdminClient,
+  hasSupabaseAdminConfig,
+} from "@/utils/supabase/admin";
+
+export type MembershipPlan = {
+  code: string;
+  description: string | null;
+  id: string;
+  isActive: boolean;
+  lessonsPerMonth: number;
+  name: string;
+  sortOrder: number;
+};
 
 export type AdminMemberDetail = {
   achievements: {
@@ -15,6 +29,7 @@ export type AdminMemberDetail = {
   }[];
   member: {
     age: number | null;
+    avatarUrl: string | null;
     currentWeightKg: number | null;
     dateOfBirth: string | null;
     email: string;
@@ -26,6 +41,10 @@ export type AdminMemberDetail = {
     isActive: boolean;
     joinedAt: string;
     level: string;
+    group: TrainingGroup | null;
+    groupId: string | null;
+    membershipPlan: MembershipPlan | null;
+    membershipPlanId: string | null;
     name: string;
     phone: string;
     streakDays: number;
@@ -35,18 +54,25 @@ export type AdminMemberDetail = {
   membership: {
     endDate: string;
     id: string;
+    membershipPlan: MembershipPlan | null;
+    membershipPlanId: string | null;
     startDate: string;
     status: MembershipStatus;
   } | null;
+  membershipPlans: MembershipPlan[];
   payments: {
-    amountCop: number;
+    amountCop: number | null;
+    createdAt: string;
     id: string;
     method: string;
     notes: string | null;
     paidAt: string;
-    periodEnd: string;
-    periodStart: string;
+    periodEnd: string | null;
+    periodStart: string | null;
+    reviewedAt: string | null;
+    screenshotUrl: string | null;
     source: string;
+    status: "pending" | "approved" | "rejected";
   }[];
   progress: {
     armCm: number | null;
@@ -71,6 +97,7 @@ export type AdminMemberDetail = {
     id: string;
     name: string;
   } | null;
+  trainingGroups: TrainingGroup[];
   stats: {
     attendanceMonth: number;
     attendanceWeek: number;
@@ -94,12 +121,14 @@ type MemberRow = {
   email: string;
   full_name: string;
   goal: string;
+  group_id: string | null;
   height_cm: number | null;
   id: string;
   initial_weight_kg: number | null;
   is_active: boolean;
   joined_at: string;
   level: string;
+  membership_plan_id: string | null;
   phone: string | null;
   streak_days: number;
   user_id: string | null;
@@ -109,18 +138,47 @@ type MemberRow = {
 type MembershipRow = {
   end_date: string;
   id: string;
+  membership_plan_id: string | null;
   start_date: string;
 };
 
+type MembershipPlanRow = {
+  code: string;
+  description: string | null;
+  id: string;
+  is_active: boolean;
+  lessons_per_month: number;
+  name: string;
+  sort_order: number;
+};
+
+type TrainingGroupRow = {
+  capacity: number;
+  id: string;
+  is_active: boolean;
+  name: string;
+  sort_order: number;
+  start_time: string;
+};
+
+type MemberGroupRow = {
+  group_id: string | null;
+  is_active: boolean;
+};
+
 type PaymentRow = {
-  amount_cop: number;
+  amount_cop: number | null;
+  created_at: string;
   id: string;
   method: string;
   notes: string | null;
   paid_at: string;
-  period_end: string;
-  period_start: string;
+  period_end: string | null;
+  period_start: string | null;
+  reviewed_at: string | null;
+  screenshot_url: string | null;
   source: string;
+  status: "pending" | "approved" | "rejected";
 };
 
 type WorkoutLogRow = {
@@ -187,24 +245,30 @@ export async function getAdminMemberDetail(
       progressResult,
       routineAssignmentsResult,
       achievementsResult,
+      membershipPlansResult,
+      trainingGroupsResult,
+      memberGroupsResult,
     ] = await Promise.all([
       supabase
         .from("members")
         .select(
-          "id,user_id,full_name,email,phone,date_of_birth,height_cm,initial_weight_kg,current_weight_kg,goal,joined_at,level,xp,streak_days,is_active",
+          "id,user_id,membership_plan_id,group_id,full_name,email,phone,date_of_birth,height_cm,initial_weight_kg,current_weight_kg,goal,joined_at,level,xp,streak_days,is_active",
         )
         .eq("id", memberId)
         .maybeSingle(),
       supabase
         .from("memberships")
-        .select("id,start_date,end_date")
+        .select("id,membership_plan_id,start_date,end_date")
         .eq("member_id", memberId)
         .order("end_date", { ascending: false }),
       supabase
         .from("payments")
-        .select("id,amount_cop,paid_at,period_start,period_end,method,source,notes")
+        .select(
+          "id,amount_cop,paid_at,period_start,period_end,method,source,status,screenshot_url,notes,reviewed_at,created_at",
+        )
         .eq("member_id", memberId)
-        .order("paid_at", { ascending: false }),
+        .order("paid_at", { ascending: false })
+        .order("created_at", { ascending: false }),
       supabase
         .from("workout_logs")
         .select("id,completed_at")
@@ -226,6 +290,23 @@ export async function getAdminMemberDetail(
         .select("id,title,xp_awarded,unlocked_at")
         .eq("member_id", memberId)
         .order("unlocked_at", { ascending: false }),
+      supabase
+        .from("membership_plans")
+        .select(
+          "id,code,name,lessons_per_month,description,is_active,sort_order",
+        )
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("training_groups")
+        .select("id,name,start_time,capacity,is_active,sort_order")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true })
+        .order("start_time", { ascending: true }),
+      supabase
+        .from("members")
+        .select("group_id,is_active")
+        .eq("is_active", true),
     ]);
 
     const firstError =
@@ -235,7 +316,10 @@ export async function getAdminMemberDetail(
       workoutLogsResult.error ??
       progressResult.error ??
       routineAssignmentsResult.error ??
-      achievementsResult.error;
+      achievementsResult.error ??
+      membershipPlansResult.error ??
+      trainingGroupsResult.error ??
+      memberGroupsResult.error;
 
     if (firstError) {
       throw firstError;
@@ -249,19 +333,56 @@ export async function getAdminMemberDetail(
     }
 
     const member = memberResult.data as MemberRow;
-    const routineAssignment = ((routineAssignmentsResult.data ?? []) as RoutineAssignmentRow[])[0];
+    const routineAssignment = (
+      (routineAssignmentsResult.data ?? []) as RoutineAssignmentRow[]
+    )[0];
     const routine = routineAssignment
       ? await loadRoutine(routineAssignment.routine_id)
       : null;
     const memberships = (membershipsResult.data ?? []) as MembershipRow[];
     const payments = (paymentsResult.data ?? []) as PaymentRow[];
+    const approvedPayments = payments.filter(
+      (payment) => payment.status === "approved",
+    );
     const workoutLogs = (workoutLogsResult.data ?? []) as WorkoutLogRow[];
     const progress = (progressResult.data ?? []) as ProgressRow[];
     const achievements = (achievementsResult.data ?? []) as AchievementRow[];
+    const membershipPlans = (
+      (membershipPlansResult.data ?? []) as MembershipPlanRow[]
+    ).map(mapMembershipPlan);
+    const membershipPlanById = new Map(
+      membershipPlans.map((plan) => [plan.id, plan]),
+    );
+    const memberCountByGroup = new Map<string, number>();
+    ((memberGroupsResult.data ?? []) as MemberGroupRow[]).forEach((row) => {
+      if (row.group_id) {
+        memberCountByGroup.set(
+          row.group_id,
+          (memberCountByGroup.get(row.group_id) ?? 0) + 1,
+        );
+      }
+    });
+    const trainingGroups = (
+      (trainingGroupsResult.data ?? []) as TrainingGroupRow[]
+    ).map((group) =>
+      mapTrainingGroup(group, memberCountByGroup.get(group.id) ?? 0),
+    );
+    const trainingGroupById = new Map(
+      trainingGroups.map((group) => [group.id, group]),
+    );
     const latestMembership = memberships[0] ?? null;
+    const memberPlan = member.membership_plan_id
+      ? (membershipPlanById.get(member.membership_plan_id) ?? null)
+      : null;
+    const latestMembershipPlan = latestMembership?.membership_plan_id
+      ? (membershipPlanById.get(latestMembership.membership_plan_id) ?? null)
+      : memberPlan;
+    const avatarUrl = await loadProfileAvatarUrl(member.user_id);
     const latestProgress = progress[progress.length - 1];
     const latestWeightKg =
-      member.current_weight_kg ?? latestProgress?.weight_kg ?? member.initial_weight_kg;
+      member.current_weight_kg ??
+      latestProgress?.weight_kg ??
+      member.initial_weight_kg;
     const weightChangeKg =
       latestWeightKg !== null && member.initial_weight_kg !== null
         ? Number((latestWeightKg - member.initial_weight_kg).toFixed(1))
@@ -281,6 +402,7 @@ export async function getAdminMemberDetail(
         attendanceChart: buildAttendanceChart(workoutLogs),
         member: {
           age: member.date_of_birth ? calculateAge(member.date_of_birth) : null,
+          avatarUrl,
           currentWeightKg: latestWeightKg,
           dateOfBirth: member.date_of_birth,
           email: member.email,
@@ -292,6 +414,12 @@ export async function getAdminMemberDetail(
           isActive: member.is_active,
           joinedAt: member.joined_at,
           level: member.level,
+          group: member.group_id
+            ? (trainingGroupById.get(member.group_id) ?? null)
+            : null,
+          groupId: member.group_id,
+          membershipPlan: memberPlan,
+          membershipPlanId: member.membership_plan_id,
           name: member.full_name,
           phone: member.phone ?? "",
           streakDays: member.streak_days,
@@ -302,19 +430,26 @@ export async function getAdminMemberDetail(
           ? {
               endDate: latestMembership.end_date,
               id: latestMembership.id,
+              membershipPlan: latestMembershipPlan,
+              membershipPlanId: latestMembership.membership_plan_id,
               startDate: latestMembership.start_date,
               status: getMembershipStatusFromDate(latestMembership.end_date),
             }
           : null,
+        membershipPlans,
         payments: payments.map((payment) => ({
           amountCop: payment.amount_cop,
+          createdAt: payment.created_at,
           id: payment.id,
           method: payment.method,
           notes: payment.notes,
           paidAt: payment.paid_at,
           periodEnd: payment.period_end,
           periodStart: payment.period_start,
+          reviewedAt: payment.reviewed_at,
+          screenshotUrl: payment.screenshot_url,
           source: payment.source,
+          status: payment.status,
         })),
         progress: progress.map((entry) => ({
           armCm: entry.arm_cm,
@@ -326,6 +461,7 @@ export async function getAdminMemberDetail(
           weightKg: entry.weight_kg,
         })),
         routine,
+        trainingGroups,
         stats: {
           attendanceMonth: workoutLogs.filter((log) =>
             log.completed_at.startsWith(monthKey),
@@ -333,11 +469,11 @@ export async function getAdminMemberDetail(
           attendanceWeek: workoutLogs.filter(
             (log) => new Date(log.completed_at) >= weekStart,
           ).length,
-          lastPaymentCop: payments[0]?.amount_cop ?? 0,
+          lastPaymentCop: approvedPayments[0]?.amount_cop ?? 0,
           latestWeightKg,
           progressEntries: progress.length,
-          totalPaidCop: payments.reduce(
-            (total, payment) => total + payment.amount_cop,
+          totalPaidCop: approvedPayments.reduce(
+            (total, payment) => total + (payment.amount_cop ?? 0),
             0,
           ),
           weightChangeKg,
@@ -354,6 +490,37 @@ export async function getAdminMemberDetail(
           : "No se pudo leer la ficha del perfil.",
     };
   }
+}
+
+async function loadProfileAvatarUrl(userId: string | null) {
+  if (!userId) {
+    return null;
+  }
+
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) {
+    return null;
+  }
+
+  return data?.avatar_url ?? null;
+}
+
+function mapMembershipPlan(plan: MembershipPlanRow): MembershipPlan {
+  return {
+    code: plan.code,
+    description: plan.description,
+    id: plan.id,
+    isActive: plan.is_active,
+    lessonsPerMonth: plan.lessons_per_month,
+    name: plan.name,
+    sortOrder: plan.sort_order,
+  };
 }
 
 async function loadRoutine(routineId: string) {

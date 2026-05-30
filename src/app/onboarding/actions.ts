@@ -26,6 +26,7 @@ export async function completeOnboarding(formData: FormData) {
   const dateOfBirth = requiredText(formData.get("dateOfBirth"));
   const goal = requiredText(formData.get("goal"));
   const gender = optionalText(formData.get("gender"));
+  const groupId = requiredText(formData.get("groupId"));
   const heightCm = positiveNumber(formData.get("heightCm"));
   const currentWeightKg = positiveNumber(formData.get("currentWeightKg"));
 
@@ -35,6 +36,7 @@ export async function completeOnboarding(formData: FormData) {
     !isRealDate(dateOfBirth) ||
     !goals.has(goal) ||
     !genders.has(gender ?? "") ||
+    !isUuid(groupId) ||
     heightCm === null ||
     currentWeightKg === null
   ) {
@@ -44,12 +46,22 @@ export async function completeOnboarding(formData: FormData) {
   const supabase = createAdminClient();
   const { data: member, error: memberReadError } = await supabase
     .from("members")
-    .select("id,email,initial_weight_kg")
+    .select("id,email,group_id,initial_weight_kg")
     .eq("user_id", user.id)
     .maybeSingle();
 
   if (memberReadError || !member) {
     redirect("/onboarding?notice=missing_member");
+  }
+
+  const groupValidationError = await validateTrainingGroupSelection({
+    currentGroupId: member.group_id,
+    groupId,
+    supabase,
+  });
+
+  if (groupValidationError) {
+    redirect(`/onboarding?notice=${groupValidationError}`);
   }
 
   const baselineWeightKg =
@@ -62,6 +74,7 @@ export async function completeOnboarding(formData: FormData) {
       date_of_birth: dateOfBirth,
       full_name: fullName,
       goal,
+      group_id: groupId,
       height_cm: heightCm,
       initial_weight_kg: baselineWeightKg,
       phone,
@@ -193,6 +206,42 @@ function getBogotaDateKey() {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
+async function validateTrainingGroupSelection({
+  currentGroupId,
+  groupId,
+  supabase,
+}: {
+  currentGroupId: string | null;
+  groupId: string;
+  supabase: ReturnType<typeof createAdminClient>;
+}) {
+  const { data: group, error: groupError } = await supabase
+    .from("training_groups")
+    .select("id,capacity,is_active")
+    .eq("id", groupId)
+    .maybeSingle();
+
+  if (groupError || !group?.is_active) {
+    return "invalid_group";
+  }
+
+  if (currentGroupId === groupId) {
+    return null;
+  }
+
+  const { count, error: countError } = await supabase
+    .from("members")
+    .select("id", { count: "exact", head: true })
+    .eq("group_id", groupId)
+    .eq("is_active", true);
+
+  if (countError) {
+    return "invalid_group";
+  }
+
+  return (count ?? 0) >= group.capacity ? "group_full" : null;
+}
+
 function isRealDate(value: string) {
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 
@@ -209,5 +258,11 @@ function isRealDate(value: string) {
     date.getUTCFullYear() === year &&
     date.getUTCMonth() === month - 1 &&
     date.getUTCDate() === day
+  );
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
   );
 }

@@ -5,14 +5,14 @@ import { getAuthenticatedMemberDestination } from "@/lib/auth";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, notice } = await searchParams;
   const destination = await getAuthenticatedMemberDestination();
 
   if (destination && !error) {
     redirect(destination);
   }
 
-  return <ClientLoginScreen error={error} />;
+  return <ClientLoginScreen error={error} notice={notice} />;
 }

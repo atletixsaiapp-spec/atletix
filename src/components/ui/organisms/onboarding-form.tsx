@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 import type { MemberOnboardingRecord } from "@/lib/auth";
+import type { TrainingGroup } from "@/lib/training-groups";
 
 const goals = [
   "Bajar grasa",
@@ -27,6 +28,7 @@ type OnboardingValues = {
   fullName: string;
   gender: string;
   goal: string;
+  groupId: string;
   heightCm: string;
   phone: string;
 };
@@ -84,6 +86,14 @@ const steps: {
     type: "select",
   },
   {
+    description:
+      "Elige el horario fijo donde entrenarás. Solo aparecen grupos con cupos disponibles.",
+    key: "groupId",
+    label: "Grupo",
+    title: "¿En qué grupo quieres entrenar?",
+    type: "select",
+  },
+  {
     description: "Tu estatura ayuda a interpretar mejor tu progreso físico.",
     inputMode: "decimal",
     key: "heightCm",
@@ -114,9 +124,11 @@ const labelClass =
 export function OnboardingForm({
   action,
   member,
+  trainingGroups,
 }: {
   action: (formData: FormData) => Promise<void> | void;
   member: MemberOnboardingRecord | null;
+  trainingGroups: TrainingGroup[];
 }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [values, setValues] = useState<OnboardingValues>({
@@ -127,6 +139,7 @@ export function OnboardingForm({
     fullName: member?.full_name ?? "",
     gender: "",
     goal: member?.goal ?? "Salud general",
+    groupId: member?.group_id ?? "",
     heightCm: stringifyNumber(member?.height_cm),
     phone: member?.phone ?? "",
   });
@@ -201,6 +214,7 @@ export function OnboardingForm({
 
         {renderStepField({
           step: currentStep,
+          trainingGroups,
           updateValue,
           value: currentValue,
         })}
@@ -244,10 +258,12 @@ export function OnboardingForm({
 
 function renderStepField({
   step,
+  trainingGroups,
   updateValue,
   value,
 }: {
   step: (typeof steps)[number];
+  trainingGroups: TrainingGroup[];
   updateValue: (value: string) => void;
   value: string;
 }) {
@@ -282,6 +298,27 @@ function renderStepField({
         {genderOptions.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  if (step.key === "groupId") {
+    return (
+      <select
+        autoFocus
+        className={fieldClass}
+        key={step.key}
+        onChange={(event) => updateValue(event.target.value)}
+        value={value}
+      >
+        <option value="">
+          {trainingGroups.length ? "Selecciona un grupo" : "Sin cupos disponibles"}
+        </option>
+        {trainingGroups.map((group) => (
+          <option key={group.id} value={group.id}>
+            {group.name} / {group.availableSeats} cupos
           </option>
         ))}
       </select>

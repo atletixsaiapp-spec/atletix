@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
-import { createAdminClient, hasSupabaseAdminConfig } from "@/utils/supabase/admin";
+import {
+  createAdminClient,
+  hasSupabaseAdminConfig,
+} from "@/utils/supabase/admin";
 
 const goals = new Set([
   "Bajar grasa",
@@ -12,8 +15,21 @@ const goals = new Set([
   "Fuerza",
   "Salud general",
 ]);
-const levels = new Set(["Rookie", "Warrior", "Elite", "Titan", "Icon", "Legend"]);
-const paymentMethods = new Set(["cash", "transfer", "nequi", "daviplata", "other"]);
+const levels = new Set([
+  "Rookie",
+  "Warrior",
+  "Elite",
+  "Titan",
+  "Icon",
+  "Legend",
+]);
+const paymentMethods = new Set([
+  "cash",
+  "transfer",
+  "nequi",
+  "daviplata",
+  "other",
+]);
 const paymentSources = new Set(["whatsapp", "front_desk", "manual"]);
 
 export async function updateMemberProfile(formData: FormData) {
@@ -34,6 +50,8 @@ export async function updateMemberProfile(formData: FormData) {
   const heightCm = optionalNumber(formData.get("heightCm"));
   const initialWeightKg = optionalNumber(formData.get("initialWeightKg"));
   const currentWeightKg = optionalNumber(formData.get("currentWeightKg"));
+  const groupIdInput = formData.get("groupId");
+  const membershipPlanIdInput = formData.get("membershipPlanId");
   const xp = optionalInteger(formData.get("xp")) ?? 0;
   const streakDays = optionalInteger(formData.get("streakDays")) ?? 0;
 
@@ -42,6 +60,16 @@ export async function updateMemberProfile(formData: FormData) {
   }
 
   const supabase = createAdminClient();
+  const membershipPlanId = await resolveMembershipPlanId(
+    supabase,
+    memberId,
+    membershipPlanIdInput,
+  );
+  const groupId = await resolveTrainingGroupId(
+    supabase,
+    memberId,
+    groupIdInput,
+  );
   const { data: member, error: readError } = await supabase
     .from("members")
     .select("user_id")
@@ -60,9 +88,11 @@ export async function updateMemberProfile(formData: FormData) {
       email,
       full_name: fullName,
       goal,
+      group_id: groupId,
       height_cm: heightCm,
       initial_weight_kg: initialWeightKg,
       level,
+      membership_plan_id: membershipPlanId,
       phone,
       streak_days: streakDays,
       updated_at: new Date().toISOString(),
@@ -104,15 +134,22 @@ export async function activateMemberMembership(formData: FormData) {
 
   const startDate = requiredText(formData.get("startDate"));
   const endDate = requiredText(formData.get("endDate"));
+  const membershipPlanIdInput = formData.get("membershipPlanId");
 
   if (!isDateKey(startDate) || !isDateKey(endDate) || endDate < startDate) {
     redirectWithNotice(memberId, "invalid_membership_dates");
   }
 
   const supabase = createAdminClient();
+  const membershipPlanId = await resolveMembershipPlanId(
+    supabase,
+    memberId,
+    membershipPlanIdInput,
+  );
   const { error: membershipError } = await supabase.from("memberships").insert({
     end_date: endDate,
     member_id: memberId,
+    membership_plan_id: membershipPlanId,
     start_date: startDate,
     status: "active",
   });
@@ -125,6 +162,7 @@ export async function activateMemberMembership(formData: FormData) {
     .from("members")
     .update({
       is_active: true,
+      membership_plan_id: membershipPlanId,
       updated_at: new Date().toISOString(),
     })
     .eq("id", memberId);
@@ -178,6 +216,7 @@ export async function revokeMemberMembership(formData: FormData) {
   const { error: memberError } = await supabase
     .from("members")
     .update({
+      group_id: null,
       is_active: false,
       updated_at: new Date().toISOString(),
     })
@@ -207,6 +246,7 @@ export async function addManualPayment(formData: FormData) {
   const method = requiredText(formData.get("method"));
   const source = requiredText(formData.get("source"));
   const notes = optionalText(formData.get("notes"));
+  const membershipPlanIdInput = formData.get("membershipPlanId");
 
   if (
     !amountCop ||
@@ -222,6 +262,11 @@ export async function addManualPayment(formData: FormData) {
   }
 
   const supabase = createAdminClient();
+  const membershipPlanId = await resolveMembershipPlanId(
+    supabase,
+    memberId,
+    membershipPlanIdInput,
+  );
   const { error: paymentError } = await supabase.from("payments").insert({
     amount_cop: amountCop,
     member_id: memberId,
@@ -230,7 +275,9 @@ export async function addManualPayment(formData: FormData) {
     paid_at: paidAt,
     period_end: periodEnd,
     period_start: periodStart,
+    reviewed_at: new Date().toISOString(),
     source: source as "whatsapp" | "front_desk" | "manual",
+    status: "approved",
   });
 
   if (paymentError) {
@@ -240,6 +287,7 @@ export async function addManualPayment(formData: FormData) {
   const { error: membershipError } = await supabase.from("memberships").insert({
     end_date: periodEnd,
     member_id: memberId,
+    membership_plan_id: membershipPlanId,
     start_date: periodStart,
     status: "active",
   });
@@ -248,13 +296,18 @@ export async function addManualPayment(formData: FormData) {
     redirectWithNotice(memberId, "payment_membership_failed");
   }
 
-  await supabase
+  const { error: memberError } = await supabase
     .from("members")
     .update({
       is_active: true,
+      membership_plan_id: membershipPlanId,
       updated_at: new Date().toISOString(),
     })
     .eq("id", memberId);
+
+  if (memberError) {
+    redirectWithNotice(memberId, "payment_membership_failed");
+  }
 
   revalidateMemberPaths(memberId);
   redirectWithNotice(memberId, "payment_added");
@@ -343,6 +396,56 @@ function isDateKey(value: string) {
 
 function dateKey(date: Date) {
   return date.toISOString().slice(0, 10);
+}
+
+async function resolveMembershipPlanId(
+  supabase: ReturnType<typeof createAdminClient>,
+  memberId: string,
+  value: FormDataEntryValue | null,
+) {
+  const membershipPlanId = optionalText(value);
+
+  if (!membershipPlanId) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("membership_plans")
+    .select("id")
+    .eq("id", membershipPlanId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    redirectWithNotice(memberId, "invalid_membership_plan");
+  }
+
+  return data.id;
+}
+
+async function resolveTrainingGroupId(
+  supabase: ReturnType<typeof createAdminClient>,
+  memberId: string,
+  value: FormDataEntryValue | null,
+) {
+  const groupId = optionalText(value);
+
+  if (!groupId) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("training_groups")
+    .select("id")
+    .eq("id", groupId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error || !data) {
+    redirectWithNotice(memberId, "invalid_group");
+  }
+
+  return data.id;
 }
 
 function revalidateMemberPaths(memberId: string) {

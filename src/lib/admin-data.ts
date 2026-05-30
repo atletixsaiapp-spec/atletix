@@ -1,5 +1,8 @@
 import type { MembershipStatus } from "@/lib/atletix-data";
-import { createAdminClient, hasSupabaseAdminConfig } from "@/utils/supabase/admin";
+import {
+  createAdminClient,
+  hasSupabaseAdminConfig,
+} from "@/utils/supabase/admin";
 
 export type AdminDashboardMember = {
   email: string;
@@ -54,8 +57,9 @@ type MembershipRow = {
 };
 
 type PaymentRow = {
-  amount_cop: number;
+  amount_cop: number | null;
   paid_at: string;
+  status: "pending" | "approved" | "rejected";
 };
 
 type WorkoutLogRow = {
@@ -117,7 +121,7 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
         .from("memberships")
         .select("member_id,start_date,end_date,status")
         .order("end_date", { ascending: false }),
-      supabase.from("payments").select("amount_cop,paid_at"),
+      supabase.from("payments").select("amount_cop,paid_at,status"),
       supabase.from("workout_logs").select("member_id,completed_at"),
       supabase
         .from("routine_assignments")
@@ -207,12 +211,15 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
     });
 
     const statuses = dashboardMembers.map((member) => member.status);
-    const revenueToday = payments
+    const approvedPayments = payments.filter(
+      (payment) => payment.status === "approved",
+    );
+    const revenueToday = approvedPayments
       .filter((payment) => payment.paid_at === todayKey)
-      .reduce((sum, payment) => sum + payment.amount_cop, 0);
-    const revenueMonth = payments
+      .reduce((sum, payment) => sum + (payment.amount_cop ?? 0), 0);
+    const revenueMonth = approvedPayments
       .filter((payment) => payment.paid_at.startsWith(monthKey))
-      .reduce((sum, payment) => sum + payment.amount_cop, 0);
+      .reduce((sum, payment) => sum + (payment.amount_cop ?? 0), 0);
 
     return {
       attentionMembers: dashboardMembers.filter(
@@ -222,10 +229,13 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       members: dashboardMembers,
       stats: {
         activeMembers: statuses.filter((status) => status === "active").length,
-        expiredMembers: statuses.filter((status) => status === "expired").length,
-        expiringMembers: statuses.filter((status) => status === "expiring").length,
-        newMembers: members.filter((member) => member.joined_at.startsWith(monthKey))
+        expiredMembers: statuses.filter((status) => status === "expired")
           .length,
+        expiringMembers: statuses.filter((status) => status === "expiring")
+          .length,
+        newMembers: members.filter((member) =>
+          member.joined_at.startsWith(monthKey),
+        ).length,
         revenueMonth,
         revenueToday,
         totalMembers: dashboardMembers.length,
@@ -248,7 +258,9 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
   }
 }
 
-export function getMembershipStatusFromDate(date: string | null): MembershipStatus {
+export function getMembershipStatusFromDate(
+  date: string | null,
+): MembershipStatus {
   if (!date) {
     return "expired";
   }

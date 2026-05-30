@@ -42,7 +42,10 @@ import {
 import { requireAdmin } from "@/lib/auth";
 import { formatCurrency, formatShortDate } from "@/lib/atletix-data";
 
-const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "error" }> = {
+const noticeCopy: Record<
+  string,
+  { body: string; tone: "success" | "warning" | "error" }
+> = {
   invalid_member_update: {
     body: "Revisa los datos de la cuenta antes de guardar.",
     tone: "error",
@@ -53,6 +56,14 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
   },
   invalid_membership_dates: {
     body: "Las fechas de membresia no son validas.",
+    tone: "error",
+  },
+  invalid_membership_plan: {
+    body: "Selecciona un plan de membresia valido.",
+    tone: "error",
+  },
+  invalid_group: {
+    body: "Selecciona un grupo valido.",
     tone: "error",
   },
   invalid_payment: {
@@ -148,8 +159,12 @@ export default async function ClientDetailPage({
     detail.membership?.endDate && detail.membership.endDate > todayKey
       ? detail.membership.endDate
       : todayKey;
-  const defaultEnd = dateKey(addOneMonth(new Date(`${defaultStart}T12:00:00-05:00`)));
+  const defaultEnd = dateKey(
+    addOneMonth(new Date(`${defaultStart}T12:00:00-05:00`)),
+  );
   const latestProgress = detail.progress[detail.progress.length - 1];
+  const defaultMembershipPlanId =
+    detail.membership?.membershipPlanId ?? member.membershipPlanId;
 
   return (
     <main className="atletix-shell min-h-screen">
@@ -204,8 +219,19 @@ export default async function ClientDetailPage({
                 </div>
 
                 <div className="grid gap-3 text-sm sm:grid-cols-2">
-                  <InfoRow label="Ingreso" value={formatShortDate(member.joinedAt)} />
+                  <InfoRow
+                    label="Ingreso"
+                    value={formatShortDate(member.joinedAt)}
+                  />
                   <InfoRow label="Objetivo" value={member.goal} />
+                  <InfoRow
+                    label="Plan"
+                    value={formatMembershipPlan(member.membershipPlan)}
+                  />
+                  <InfoRow
+                    label="Grupo"
+                    value={formatTrainingGroup(member.group)}
+                  />
                 </div>
               </div>
 
@@ -292,7 +318,8 @@ export default async function ClientDetailPage({
                     {detail.routine?.name ?? "Sin rutina asignada"}
                   </h3>
                   <p className="mt-2 text-sm text-zinc-500">
-                    {detail.routine?.coachNotes ?? "Asigna una rutina para esta cuenta."}
+                    {detail.routine?.coachNotes ??
+                      "Asigna una rutina para esta cuenta."}
                   </p>
                 </div>
 
@@ -306,7 +333,9 @@ export default async function ClientDetailPage({
                         <div className="flex items-start gap-3">
                           <Dumbbell className="mt-1 text-[#ff2fa8]" size={18} />
                           <div>
-                            <p className="font-black text-white">{exercise.name}</p>
+                            <p className="font-black text-white">
+                              {exercise.name}
+                            </p>
                             <p className="text-sm text-zinc-500">
                               {exercise.coachNote}
                             </p>
@@ -364,7 +393,9 @@ export default async function ClientDetailPage({
                     label="Check-ins"
                     value={`${detail.stats.progressEntries}`}
                     detail={
-                      latestProgress ? formatShortDate(latestProgress.date) : "Sin progreso"
+                      latestProgress
+                        ? formatShortDate(latestProgress.date)
+                        : "Sin progreso"
                     }
                   />
                 </div>
@@ -380,7 +411,14 @@ export default async function ClientDetailPage({
               description="Periodo activo, acciones de membresia, registro de pagos e historial reciente."
             />
 
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <ProfileMetric
+                icon={<ShieldCheck size={18} />}
+                label="Plan"
+                value={formatMembershipPlan(
+                  detail.membership?.membershipPlan ?? member.membershipPlan,
+                )}
+              />
               <ProfileMetric
                 icon={<CalendarDays size={18} />}
                 label="Vence"
@@ -425,8 +463,10 @@ export default async function ClientDetailPage({
                   <MembershipActionForms
                     activateAction={activateMemberMembership}
                     defaultEnd={defaultEnd}
+                    defaultMembershipPlanId={defaultMembershipPlanId}
                     defaultStart={defaultStart}
                     memberId={member.id}
+                    membershipPlans={detail.membershipPlans}
                     revokeAction={revokeMemberMembership}
                   />
                 </div>
@@ -445,9 +485,11 @@ export default async function ClientDetailPage({
                   <ManualPaymentForm
                     action={addManualPayment}
                     defaultEnd={defaultEnd}
+                    defaultMembershipPlanId={defaultMembershipPlanId}
                     defaultPaidAt={todayKey}
                     defaultStart={defaultStart}
                     memberId={member.id}
+                    membershipPlans={detail.membershipPlans}
                   />
                 </div>
               </div>
@@ -471,18 +513,32 @@ export default async function ClientDetailPage({
                       >
                         <div className="flex items-center justify-between gap-3">
                           <p className="font-black text-white">
-                            {formatCurrency(payment.amountCop)}
+                            {payment.amountCop
+                              ? formatCurrency(payment.amountCop)
+                              : "Pendiente"}
                           </p>
-                          <Banknote className="text-[#ff8bd8]" size={18} />
+                          <PaymentStatusPill status={payment.status} />
                         </div>
                         <p className="mt-2 text-sm text-zinc-500">
                           {formatPaymentMethod(payment.method)} -{" "}
                           {formatShortDate(payment.paidAt)}
                         </p>
-                        <p className="mt-1 text-xs text-zinc-600">
-                          {formatShortDate(payment.periodStart)} a{" "}
-                          {formatShortDate(payment.periodEnd)}
-                        </p>
+                        {payment.periodStart && payment.periodEnd ? (
+                          <p className="mt-1 text-xs text-zinc-600">
+                            {formatShortDate(payment.periodStart)} a{" "}
+                            {formatShortDate(payment.periodEnd)}
+                          </p>
+                        ) : null}
+                        {payment.screenshotUrl ? (
+                          <a
+                            href={payment.screenshotUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-3 inline-block text-xs font-black uppercase tracking-[0.14em] text-[#ff8bd8] transition hover:text-white"
+                          >
+                            Ver screenshot
+                          </a>
+                        ) : null}
                       </div>
                     ))
                   ) : (
@@ -571,7 +627,9 @@ function SectionHeading({
       >
         {eyebrow}
       </p>
-      <h2 className="mt-1 text-2xl font-black text-white sm:text-3xl">{title}</h2>
+      <h2 className="mt-1 text-2xl font-black text-white sm:text-3xl">
+        {title}
+      </h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
         {description}
       </p>
@@ -581,6 +639,14 @@ function SectionHeading({
 
 function formatNumber(value: number | null, suffix: string) {
   return value === null ? "--" : `${value} ${suffix}`;
+}
+
+function formatMembershipPlan(plan: { name: string } | null) {
+  return plan ? `${plan.name}` : "Sin plan";
+}
+
+function formatTrainingGroup(group: { name: string } | null) {
+  return group ? group.name : "Sin grupo";
 }
 
 function formatPaymentMethod(method: string) {
@@ -593,4 +659,29 @@ function formatPaymentMethod(method: string) {
   };
 
   return labels[method] ?? method;
+}
+
+function PaymentStatusPill({
+  status,
+}: {
+  status: "pending" | "approved" | "rejected";
+}) {
+  const styles = {
+    approved: "border-emerald-300/20 bg-emerald-400/10 text-emerald-100",
+    pending: "border-amber-300/20 bg-amber-400/10 text-amber-100",
+    rejected: "border-red-300/20 bg-red-400/10 text-red-100",
+  };
+  const labels = {
+    approved: "Validado",
+    pending: "Pendiente",
+    rejected: "Rechazado",
+  };
+
+  return (
+    <span
+      className={`rounded-full border px-2 py-1 text-[0.65rem] font-black uppercase tracking-[0.12em] ${styles[status]}`}
+    >
+      {labels[status]}
+    </span>
+  );
 }

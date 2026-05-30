@@ -17,6 +17,8 @@ const labelClass =
   "text-[0.72rem] font-black uppercase tracking-[0.16em] text-zinc-500";
 
 type Action = (formData: FormData) => Promise<void> | void;
+type MembershipPlan = AdminMemberDetail["membershipPlans"][number];
+type TrainingGroup = AdminMemberDetail["trainingGroups"][number];
 
 export function EditMemberProfileForm({
   action,
@@ -96,6 +98,16 @@ export function EditMemberProfileForm({
         </select>
       </label>
 
+      <MembershipPlanField
+        defaultValue={member.membershipPlanId}
+        plans={detail.membershipPlans}
+      />
+
+      <TrainingGroupField
+        defaultValue={member.groupId}
+        groups={detail.trainingGroups}
+      />
+
       <label className={labelClass}>
         Estatura
         <input
@@ -171,20 +183,29 @@ export function EditMemberProfileForm({
 export function MembershipActionForms({
   activateAction,
   defaultEnd,
+  defaultMembershipPlanId,
   defaultStart,
   memberId,
+  membershipPlans,
   revokeAction,
 }: {
   activateAction: Action;
   defaultEnd: string;
+  defaultMembershipPlanId: string | null;
   defaultStart: string;
   memberId: string;
+  membershipPlans: MembershipPlan[];
   revokeAction: Action;
 }) {
   return (
     <div className="grid gap-4">
       <form action={activateAction} className="grid gap-4 sm:grid-cols-2">
         <input name="memberId" type="hidden" value={memberId} />
+        <MembershipPlanField
+          className="sm:col-span-2"
+          defaultValue={defaultMembershipPlanId}
+          plans={membershipPlans}
+        />
         <label className={labelClass}>
           Inicio
           <input
@@ -229,19 +250,28 @@ export function MembershipActionForms({
 export function ManualPaymentForm({
   action,
   defaultEnd,
+  defaultMembershipPlanId,
   defaultPaidAt,
   defaultStart,
   memberId,
+  membershipPlans,
 }: {
   action: Action;
   defaultEnd: string;
+  defaultMembershipPlanId: string | null;
   defaultPaidAt: string;
   defaultStart: string;
   memberId: string;
+  membershipPlans: MembershipPlan[];
 }) {
   return (
     <form action={action} className="grid gap-4 md:grid-cols-2">
       <input name="memberId" type="hidden" value={memberId} />
+      <MembershipPlanField
+        className="md:col-span-2"
+        defaultValue={defaultMembershipPlanId}
+        plans={membershipPlans}
+      />
 
       <label className={labelClass}>
         Valor COP
@@ -324,5 +354,57 @@ export function ManualPaymentForm({
         Registrar pago manual
       </PendingSubmitButton>
     </form>
+  );
+}
+
+function MembershipPlanField({
+  className,
+  defaultValue,
+  plans,
+}: {
+  className?: string;
+  defaultValue: string | null;
+  plans: MembershipPlan[];
+}) {
+  return (
+    <label className={`${labelClass} ${className ?? ""}`}>
+      Plan de membresia
+      <select
+        className={fieldClass}
+        defaultValue={defaultValue ?? ""}
+        name="membershipPlanId"
+      >
+        <option value="">Sin plan asignado</option>
+        {plans.map((plan) => (
+          <option key={plan.id} value={plan.id}>
+            {plan.name} / {plan.lessonsPerMonth} clases
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function TrainingGroupField({
+  className,
+  defaultValue,
+  groups,
+}: {
+  className?: string;
+  defaultValue: string | null;
+  groups: TrainingGroup[];
+}) {
+  return (
+    <label className={`${labelClass} ${className ?? ""}`}>
+      Grupo
+      <select className={fieldClass} defaultValue={defaultValue ?? ""} name="groupId">
+        <option value="">Sin grupo asignado</option>
+        {groups.map((group) => (
+          <option key={group.id} value={group.id}>
+            {group.name} / {group.memberCount}/{group.capacity}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }

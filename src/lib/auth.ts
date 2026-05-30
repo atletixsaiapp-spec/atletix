@@ -4,11 +4,13 @@ import { getAdminSession } from "@/lib/admin-session";
 import { createClient } from "@/utils/supabase/server";
 
 export type MemberOnboardingRecord = {
+  avatar_url: string | null;
   current_weight_kg: number | null;
   date_of_birth: string | null;
   email: string;
   full_name: string;
   goal: string;
+  group_id: string | null;
   height_cm: number | null;
   id: string;
   initial_weight_kg: number | null;
@@ -16,7 +18,7 @@ export type MemberOnboardingRecord = {
 };
 
 const memberOnboardingSelect =
-  "id,full_name,email,phone,date_of_birth,height_cm,initial_weight_kg,current_weight_kg,goal";
+  "id,full_name,email,phone,date_of_birth,height_cm,initial_weight_kg,current_weight_kg,goal,group_id";
 
 export async function requireUser() {
   const supabase = createClient(await cookies());
@@ -100,7 +102,20 @@ export async function getMemberOnboardingRecord(
     return null;
   }
 
-  return data as MemberOnboardingRecord | null;
+  if (!data) {
+    return null;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", userId)
+    .maybeSingle();
+
+  return {
+    ...(data as Omit<MemberOnboardingRecord, "avatar_url">),
+    avatar_url: profile?.avatar_url ?? null,
+  };
 }
 
 export function isMemberOnboardingComplete(member: MemberOnboardingRecord | null) {
@@ -110,6 +125,7 @@ export function isMemberOnboardingComplete(member: MemberOnboardingRecord | null
       member.phone &&
       member.date_of_birth &&
       member.goal &&
+      member.group_id &&
       member.height_cm !== null &&
       member.current_weight_kg !== null,
   );

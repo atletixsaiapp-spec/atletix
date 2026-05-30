@@ -4,8 +4,12 @@ import {
   Activity,
   CalendarX,
   CircleDollarSign,
+  Clock3,
+  ListChecks,
+  QrCode,
   Search,
   UsersRound,
+  WalletCards,
 } from "lucide-react";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
 import { AdminMembersTable } from "@/components/ui/organisms/admin-members-table";
@@ -68,6 +72,33 @@ export default async function AdminPage() {
           />
         </section>
 
+        <section className="mt-6 grid gap-4 lg:grid-cols-4">
+          <AdminShortcut
+            href="/admin/asistencia"
+            icon={<QrCode size={22} />}
+            label="QR asistencia"
+            title="Registrar entradas"
+          />
+          <AdminShortcut
+            href="/admin/grupos"
+            icon={<Clock3 size={22} />}
+            label="Grupos"
+            title="Horarios y cupos"
+          />
+          <AdminShortcut
+            href="/admin/lista-espera"
+            icon={<ListChecks size={22} />}
+            label="Lista de espera"
+            title="Gestionar solicitudes"
+          />
+          <AdminShortcut
+            href="/admin/pagos"
+            icon={<WalletCards size={22} />}
+            label="Pagos"
+            title="Validar comprobantes"
+          />
+        </section>
+
         <section className="glass-panel mt-6 overflow-hidden rounded-3xl">
           <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
@@ -100,6 +131,42 @@ export default async function AdminPage() {
   );
 }
 
+function AdminShortcut({
+  href,
+  icon,
+  label,
+  title,
+}: {
+  href: string;
+  icon: ReactNode;
+  label: string;
+  title: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="glass-panel flex flex-col gap-4 rounded-3xl p-5 transition hover:border-[#ff2fa8]/45 hover:bg-[#ff2fa8]/10 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <span className="flex items-center gap-3">
+        <span className="grid size-12 place-items-center rounded-2xl bg-[#ff2fa8]/15 text-[#ff8bd8]">
+          {icon}
+        </span>
+        <span>
+          <span className="block text-sm font-black uppercase tracking-[0.18em] text-zinc-500">
+            {label}
+          </span>
+          <span className="mt-1 block text-xl font-black text-white">
+            {title}
+          </span>
+        </span>
+      </span>
+      <span className="inline-flex min-h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-black text-black">
+        Abrir
+      </span>
+    </Link>
+  );
+}
+
 function AdminMetric({
   icon,
   label,
@@ -122,13 +189,17 @@ function AdminMetric({
 
   return (
     <div className="glass-panel rounded-3xl p-5">
-      <div className={`grid size-11 place-items-center rounded-2xl bg-white/[0.05] ${tones[tone]}`}>
+      <div
+        className={`grid size-11 place-items-center rounded-2xl bg-white/[0.05] ${tones[tone]}`}
+      >
         {icon}
       </div>
       <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-zinc-500">
         {label}
       </p>
-      <p className="metric-number mt-2 text-3xl font-black text-white">{value}</p>
+      <p className="metric-number mt-2 text-3xl font-black text-white">
+        {value}
+      </p>
       <p className="mt-1 text-sm text-zinc-500">{detail}</p>
     </div>
   );

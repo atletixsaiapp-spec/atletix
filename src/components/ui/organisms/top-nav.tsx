@@ -8,11 +8,12 @@ import { NavLink } from "@/components/ui/atoms/nav-link";
 import { PendingSubmitButton } from "@/components/ui/atoms/pending-submit-button";
 import { Menu, X } from "@/components/ui/icons/nav-icons";
 
-type TopNavActive = "member" | "admin" | "demo" | "login";
+type TopNavActive = "member" | "admin" | "demo" | "login" | "waitlist";
 type TopNavMode = "public" | "member" | "admin";
 
 const publicNavItems: { href: string; key: TopNavActive; label: string }[] = [
   { href: "/login", key: "login", label: "Acceso" },
+  { href: "/lista-espera", key: "waitlist", label: "Lista de espera" },
   { href: "/admin/login", key: "admin", label: "Admin" },
 ];
 

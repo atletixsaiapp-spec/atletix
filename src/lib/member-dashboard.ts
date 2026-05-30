@@ -1,8 +1,14 @@
 import type { AdminMemberDetail } from "@/lib/admin-member-detail";
 import { getAdminMemberDetail } from "@/lib/admin-member-detail";
+import { createAttendanceQr } from "@/lib/attendance-qr";
 import type { MemberOnboardingRecord } from "@/lib/auth";
 
 export type MemberDashboardData = AdminMemberDetail & {
+  attendanceQr: {
+    expiresAt: string;
+    svg: string;
+    token: string;
+  };
   loadMessage: string | null;
 };
 
@@ -14,12 +20,14 @@ export async function getMemberDashboardData(
   if (detail.member) {
     return {
       ...detail.member,
+      attendanceQr: createAttendanceQr(member.id),
       loadMessage: detail.setupMessage ?? null,
     };
   }
 
   return {
     ...buildFallbackDashboard(member),
+    attendanceQr: createAttendanceQr(member.id),
     loadMessage:
       detail.setupMessage ??
       "Tu perfil existe, pero aun no pudimos leer todos tus datos conectados.",
@@ -39,10 +47,13 @@ function buildFallbackDashboard(member: MemberOnboardingRecord): AdminMemberDeta
     attendanceChart: buildEmptyAttendanceChart(),
     member: {
       age: member.date_of_birth ? calculateAge(member.date_of_birth) : null,
+      avatarUrl: member.avatar_url,
       currentWeightKg: latestWeightKg,
       dateOfBirth: member.date_of_birth,
       email: member.email,
       goal: member.goal,
+      group: null,
+      groupId: member.group_id,
       heightCm: member.height_cm,
       id: member.id,
       initialWeightKg: member.initial_weight_kg,
@@ -50,6 +61,8 @@ function buildFallbackDashboard(member: MemberOnboardingRecord): AdminMemberDeta
       isActive: false,
       joinedAt: today,
       level: "Rookie",
+      membershipPlan: null,
+      membershipPlanId: null,
       name: member.full_name,
       phone: member.phone ?? "",
       streakDays: 0,
@@ -57,6 +70,7 @@ function buildFallbackDashboard(member: MemberOnboardingRecord): AdminMemberDeta
       xp: 0,
     },
     membership: null,
+    membershipPlans: [],
     payments: [],
     progress: latestWeightKg
       ? [
@@ -72,6 +86,7 @@ function buildFallbackDashboard(member: MemberOnboardingRecord): AdminMemberDeta
         ]
       : [],
     routine: null,
+    trainingGroups: [],
     stats: {
       attendanceMonth: 0,
       attendanceWeek: 0,
