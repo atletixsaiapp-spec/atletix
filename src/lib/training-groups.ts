@@ -65,6 +65,8 @@ export async function getTrainingGroups({
     const firstError = groupsResult.error ?? membersResult.error;
 
     if (firstError) {
+      console.error("ATLETIX training groups lookup failed", firstError);
+
       throw firstError;
     }
 
@@ -85,13 +87,14 @@ export async function getTrainingGroups({
       isConfigured: true,
     };
   } catch (error) {
+    const message = getErrorMessage(error);
+
     return {
       groups: [],
       isConfigured: true,
-      setupMessage:
-        error instanceof Error
-          ? `No se pudieron leer grupos: ${error.message}`
-          : "No se pudieron leer grupos.",
+      setupMessage: message
+        ? `No se pudieron leer grupos: ${message}`
+        : "No se pudieron leer grupos.",
     };
   }
 }
@@ -119,4 +122,18 @@ export function mapTrainingGroup(
     sortOrder: group.sort_order,
     startTime: group.start_time,
   };
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (error && typeof error === "object" && "message" in error) {
+    const message = (error as { message?: unknown }).message;
+
+    return typeof message === "string" ? message : null;
+  }
+
+  return null;
 }

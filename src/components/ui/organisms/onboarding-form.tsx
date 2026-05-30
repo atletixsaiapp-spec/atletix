@@ -130,19 +130,11 @@ export function OnboardingForm({
   member: MemberOnboardingRecord | null;
   trainingGroups: TrainingGroup[];
 }) {
-  const [stepIndex, setStepIndex] = useState(0);
-  const [values, setValues] = useState<OnboardingValues>({
-    currentWeightKg: stringifyNumber(
-      member?.current_weight_kg ?? member?.initial_weight_kg,
-    ),
-    dateOfBirth: member?.date_of_birth ?? "",
-    fullName: member?.full_name ?? "",
-    gender: "",
-    goal: member?.goal ?? "Salud general",
-    groupId: member?.group_id ?? "",
-    heightCm: stringifyNumber(member?.height_cm),
-    phone: member?.phone ?? "",
-  });
+  const initialValues = useMemo(() => buildInitialValues(member), [member]);
+  const [stepIndex, setStepIndex] = useState(() =>
+    getInitialStepIndex(initialValues),
+  );
+  const [values, setValues] = useState<OnboardingValues>(initialValues);
 
   const currentStep = steps[stepIndex] ?? steps[0]!;
   const isFirstStep = stepIndex === 0;
@@ -360,6 +352,31 @@ function isStepValid(key: StepKey, value: string, optional = false) {
   }
 
   return value.trim().length > 0;
+}
+
+function buildInitialValues(
+  member: MemberOnboardingRecord | null,
+): OnboardingValues {
+  return {
+    currentWeightKg: stringifyNumber(
+      member?.current_weight_kg ?? member?.initial_weight_kg,
+    ),
+    dateOfBirth: member?.date_of_birth ?? "",
+    fullName: member?.full_name ?? "",
+    gender: "",
+    goal: member?.goal ?? "Salud general",
+    groupId: member?.group_id ?? "",
+    heightCm: stringifyNumber(member?.height_cm),
+    phone: member?.phone ?? "",
+  };
+}
+
+function getInitialStepIndex(values: OnboardingValues) {
+  const firstIncompleteStep = steps.findIndex(
+    (step) => !isStepValid(step.key, values[step.key], step.optional),
+  );
+
+  return firstIncompleteStep === -1 ? steps.length - 1 : firstIncompleteStep;
 }
 
 function stringifyNumber(value: number | null | undefined) {

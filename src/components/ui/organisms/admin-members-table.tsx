@@ -30,8 +30,6 @@ export function AdminMembersTable({
               <th className="px-5 py-4 font-black">Cuenta</th>
               <th className="px-5 py-4 font-black">Contacto</th>
               <th className="px-5 py-4 font-black">Membresia</th>
-              <th className="px-5 py-4 font-black">Progreso</th>
-              <th className="px-5 py-4 font-black">Rutina</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
@@ -39,7 +37,7 @@ export function AdminMembersTable({
               members.map((member) => <MemberRow key={member.id} member={member} />)
             ) : (
               <tr>
-                <td className="px-5 py-10 text-center text-zinc-500" colSpan={5}>
+                <td className="px-5 py-10 text-center text-zinc-500" colSpan={3}>
                   {emptyMessage}
                 </td>
               </tr>
@@ -64,7 +62,7 @@ function MemberCard({ member }: { member: AdminDashboardMember }) {
           {member.initials}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex flex-col gap-2 min-[380px]:flex-row min-[380px]:items-start min-[380px]:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <p className="truncate font-black text-white">{member.name}</p>
               <p className="text-sm text-zinc-500">{member.goal}</p>
@@ -181,32 +179,6 @@ function MemberRow({ member }: { member: AdminDashboardMember }) {
                 ? `${days} dias restantes`
                 : `${Math.abs(days)} dias de atraso`}
           </p>
-        </Link>
-      </td>
-      <td className="px-5 py-4">
-        <Link
-          className="block w-36 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
-          href={`/clientes/${member.id}`}
-        >
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-zinc-500">Semana</span>
-            <span className="font-black text-white">{member.progressPercent}%</span>
-          </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-[#ff2fa8]"
-              style={{ width: `${member.progressPercent}%` }}
-            />
-          </div>
-        </Link>
-      </td>
-      <td className="px-5 py-4">
-        <Link
-          className="block rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#ff8bd8]"
-          href={`/clientes/${member.id}`}
-        >
-          <p className="font-semibold text-white">{member.routineName}</p>
-          <p className="text-sm text-zinc-500">{member.routineDay}</p>
         </Link>
       </td>
     </tr>

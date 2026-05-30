@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowLeft, Search, Upload, UserPlus } from "lucide-react";
+import { ArrowLeft, Upload, UserPlus } from "lucide-react";
 import { AdminNotice } from "@/components/ui/atoms/admin-notice";
-import { AdminMembersTable } from "@/components/ui/organisms/admin-members-table";
+import { AdminMembersSearch } from "@/components/ui/organisms/admin-members-search";
 import { TopNav } from "@/components/ui/organisms/top-nav";
 import { getAdminDashboardData } from "@/lib/admin-data";
 import { requireAdmin } from "@/lib/auth";
@@ -78,22 +78,7 @@ export default async function AdminClientsPage({
         {noticeConfig ? <AdminNotice {...noticeConfig} /> : null}
 
         <section className="glass-panel overflow-hidden rounded-3xl">
-          <div className="flex flex-col gap-4 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                Lista completa
-              </p>
-              <h2 className="mt-1 text-2xl font-black text-white">
-                {dashboard.members.length} cuentas
-              </h2>
-            </div>
-            <div className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-zinc-400 sm:w-auto">
-              <Search size={17} />
-              <span className="text-sm">Datos reales de Supabase</span>
-            </div>
-          </div>
-
-          <AdminMembersTable members={dashboard.members} />
+          <AdminMembersSearch members={dashboard.members} />
         </section>
       </section>
     </main>

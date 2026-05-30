@@ -7,7 +7,6 @@ import {
   Clock3,
   ListChecks,
   QrCode,
-  Search,
   UsersRound,
   WalletCards,
 } from "lucide-react";
@@ -108,10 +107,6 @@ export default async function AdminPage() {
               <h2 className="mt-1 text-2xl font-black text-white">
                 Estado de membresias
               </h2>
-            </div>
-            <div className="flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 text-zinc-400 sm:w-auto">
-              <Search size={17} />
-              <span className="text-sm">Datos reales de Supabase</span>
             </div>
           </div>
 

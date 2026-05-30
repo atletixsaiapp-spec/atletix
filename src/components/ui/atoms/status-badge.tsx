@@ -10,7 +10,7 @@ export function StatusBadge({ status }: { status: MembershipStatus }) {
 
   return (
     <span
-      className={`rounded-full border px-3 py-1 text-xs font-black uppercase tracking-[0.16em] ${styles[status]}`}
+      className={`inline-flex max-w-full shrink-0 items-center rounded-full border px-3 py-1 text-xs font-black uppercase tracking-[0.16em] ${styles[status]}`}
     >
       {getStatusLabel(status)}
     </span>

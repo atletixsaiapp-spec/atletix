@@ -19,6 +19,8 @@ export type MemberOnboardingRecord = {
 
 const memberOnboardingSelect =
   "id,full_name,email,phone,date_of_birth,height_cm,initial_weight_kg,current_weight_kg,goal,group_id";
+const legacyMemberOnboardingSelect =
+  "id,full_name,email,phone,date_of_birth,height_cm,initial_weight_kg,current_weight_kg,goal";
 
 export async function requireUser() {
   const supabase = createClient(await cookies());
@@ -99,13 +101,46 @@ export async function getMemberOnboardingRecord(
     .maybeSingle();
 
   if (error) {
-    return null;
+    console.error("ATLETIX member onboarding lookup failed", error);
+
+    const { data: legacyData, error: legacyError } = await supabase
+      .from("members")
+      .select(legacyMemberOnboardingSelect)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (legacyError) {
+      console.error("ATLETIX legacy member onboarding lookup failed", legacyError);
+
+      return null;
+    }
+
+    if (!legacyData) {
+      return null;
+    }
+
+    return withProfileAvatar(supabase, userId, {
+      ...(legacyData as Omit<MemberOnboardingRecord, "avatar_url" | "group_id">),
+      group_id: null,
+    });
   }
 
   if (!data) {
     return null;
   }
 
+  return withProfileAvatar(
+    supabase,
+    userId,
+    data as Omit<MemberOnboardingRecord, "avatar_url">,
+  );
+}
+
+async function withProfileAvatar(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+  member: Omit<MemberOnboardingRecord, "avatar_url">,
+) {
   const { data: profile } = await supabase
     .from("profiles")
     .select("avatar_url")
@@ -113,7 +148,7 @@ export async function getMemberOnboardingRecord(
     .maybeSingle();
 
   return {
-    ...(data as Omit<MemberOnboardingRecord, "avatar_url">),
+    ...member,
     avatar_url: profile?.avatar_url ?? null,
   };
 }
