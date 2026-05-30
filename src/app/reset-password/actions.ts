@@ -29,13 +29,17 @@ export async function updatePassword(formData: FormData) {
 
   const { error } = await supabase.auth.updateUser({ password });
 
-  if (error) {
+  if (error && !isSamePasswordError(error)) {
     console.error("ATLETIX password update failed", error);
     redirectWithNotice("update_failed");
   }
 
   const member = await getMemberOnboardingRecord(supabase, userData.user.id);
   redirect(isMemberOnboardingComplete(member) ? "/dashboard" : "/onboarding");
+}
+
+function isSamePasswordError(error: { code?: string }) {
+  return error.code === "same_password";
 }
 
 function redirectWithNotice(notice: string): never {

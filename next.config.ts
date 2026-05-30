@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const supabaseStorageHost = getSupabaseStorageHost();
 
 const nextConfig: NextConfig = {
+  htmlLimitedBots: /.*/,
   images: {
     remotePatterns: [
       {
