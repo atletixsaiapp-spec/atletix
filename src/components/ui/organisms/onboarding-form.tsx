@@ -23,6 +23,7 @@ const genderOptions = [
 ];
 
 type OnboardingValues = {
+  confirmPassword: string;
   currentWeightKg: string;
   dateOfBirth: string;
   fullName: string;
@@ -30,12 +31,13 @@ type OnboardingValues = {
   goal: string;
   groupId: string;
   heightCm: string;
+  password: string;
   phone: string;
 };
 
 type StepKey = keyof OnboardingValues;
 
-const steps: {
+type OnboardingStep = {
   description: string;
   inputMode?: "decimal" | "tel";
   key: StepKey;
@@ -44,8 +46,18 @@ const steps: {
   placeholder?: string;
   suffix?: string;
   title: string;
-  type: "date" | "number" | "select" | "tel" | "text";
-}[] = [
+  type: "date" | "number" | "password" | "select" | "tel" | "text";
+};
+
+const passwordStep: OnboardingStep = {
+  description: "La usarás para entrar a ATLETIX después de completar tu perfil.",
+  key: "password",
+  label: "Contraseña",
+  title: "Crea tu contraseña",
+  type: "password",
+};
+
+const profileSteps: OnboardingStep[] = [
   {
     description: "Así aparecerá tu nombre dentro de ATLETIX.",
     key: "fullName",
@@ -124,32 +136,37 @@ const labelClass =
 export function OnboardingForm({
   action,
   member,
+  passwordSetup,
   trainingGroups,
 }: {
   action: (formData: FormData) => Promise<void> | void;
   member: MemberOnboardingRecord | null;
+  passwordSetup: boolean;
   trainingGroups: TrainingGroup[];
 }) {
   const initialValues = useMemo(() => buildInitialValues(member), [member]);
+  const activeSteps = useMemo(
+    () => (passwordSetup ? [passwordStep, ...profileSteps] : profileSteps),
+    [passwordSetup],
+  );
   const [stepIndex, setStepIndex] = useState(() =>
-    getInitialStepIndex(initialValues),
+    passwordSetup ? 0 : getInitialStepIndex(initialValues, activeSteps),
   );
   const [values, setValues] = useState<OnboardingValues>(initialValues);
 
-  const currentStep = steps[stepIndex] ?? steps[0]!;
+  const currentStep = activeSteps[stepIndex] ?? activeSteps[0]!;
   const isFirstStep = stepIndex === 0;
-  const isLastStep = stepIndex === steps.length - 1;
-  const currentValue = values[currentStep.key];
+  const isLastStep = stepIndex === activeSteps.length - 1;
   const isCurrentStepValid = useMemo(
-    () => isStepValid(currentStep.key, currentValue, currentStep.optional),
-    [currentStep, currentValue],
+    () => isStepValid(currentStep, values),
+    [currentStep, values],
   );
-  const progress = Math.round(((stepIndex + 1) / steps.length) * 100);
+  const progress = Math.round(((stepIndex + 1) / activeSteps.length) * 100);
 
-  function updateValue(value: string) {
+  function updateValue(key: StepKey, value: string) {
     setValues((current) => ({
       ...current,
-      [currentStep.key]: value,
+      [key]: value,
     }));
   }
 
@@ -179,11 +196,16 @@ export function OnboardingForm({
       {Object.entries(values).map(([name, value]) => (
         <input key={name} name={name} type="hidden" value={value} />
       ))}
+      <input
+        name="passwordSetup"
+        type="hidden"
+        value={passwordSetup ? "true" : "false"}
+      />
 
       <div>
         <div className="mb-3 flex items-center justify-between gap-4 text-xs font-black uppercase tracking-[0.16em] text-zinc-500">
           <span>
-            Paso {stepIndex + 1} de {steps.length}
+            Paso {stepIndex + 1} de {activeSteps.length}
           </span>
           <span>{progress}%</span>
         </div>
@@ -208,7 +230,7 @@ export function OnboardingForm({
           step: currentStep,
           trainingGroups,
           updateValue,
-          value: currentValue,
+          values,
         })}
       </section>
 
@@ -252,20 +274,57 @@ function renderStepField({
   step,
   trainingGroups,
   updateValue,
-  value,
+  values,
 }: {
-  step: (typeof steps)[number];
+  step: OnboardingStep;
   trainingGroups: TrainingGroup[];
-  updateValue: (value: string) => void;
-  value: string;
+  updateValue: (key: StepKey, value: string) => void;
+  values: OnboardingValues;
 }) {
+  const value = values[step.key];
+
+  if (step.key === "password") {
+    return (
+      <div className="mt-4 grid gap-3">
+        <label className="block">
+          <span className={labelClass}>Nueva contraseña</span>
+          <input
+            autoComplete="new-password"
+            autoFocus
+            className={fieldClass}
+            minLength={8}
+            onChange={(event) => updateValue("password", event.target.value)}
+            placeholder="Mínimo 8 caracteres"
+            type="password"
+            value={values.password}
+          />
+        </label>
+
+        <label className="block">
+          <span className={labelClass}>Confirmar contraseña</span>
+          <input
+            autoComplete="new-password"
+            className={fieldClass}
+            minLength={8}
+            onChange={(event) =>
+              updateValue("confirmPassword", event.target.value)
+            }
+            placeholder="Repite la contraseña"
+            type="password"
+            value={values.confirmPassword}
+          />
+        </label>
+      </div>
+    );
+  }
+
   if (step.key === "goal") {
     return (
       <select
         autoFocus
         className={fieldClass}
         key={step.key}
-        onChange={(event) => updateValue(event.target.value)}
+        onChange={(event) => updateValue(step.key, event.target.value)}
         value={value}
       >
         {goals.map((goal) => (
@@ -283,7 +342,7 @@ function renderStepField({
         autoFocus
         className={fieldClass}
         key={step.key}
-        onChange={(event) => updateValue(event.target.value)}
+        onChange={(event) => updateValue(step.key, event.target.value)}
         value={value}
       >
         <option value="">Prefiero no decirlo</option>
@@ -302,7 +361,7 @@ function renderStepField({
         autoFocus
         className={fieldClass}
         key={step.key}
-        onChange={(event) => updateValue(event.target.value)}
+        onChange={(event) => updateValue(step.key, event.target.value)}
         value={value}
       >
         <option value="">
@@ -325,7 +384,7 @@ function renderStepField({
         inputMode={step.inputMode}
         key={step.key}
         min={step.type === "number" ? "1" : undefined}
-        onChange={(event) => updateValue(event.target.value)}
+        onChange={(event) => updateValue(step.key, event.target.value)}
         placeholder={step.placeholder}
         step={step.type === "number" ? "0.1" : undefined}
         type={step.type}
@@ -340,12 +399,20 @@ function renderStepField({
   );
 }
 
-function isStepValid(key: StepKey, value: string, optional = false) {
-  if (optional) {
+function isStepValid(step: OnboardingStep, values: OnboardingValues) {
+  if (step.optional) {
     return true;
   }
 
-  if (key === "heightCm" || key === "currentWeightKg") {
+  if (step.key === "password") {
+    return (
+      values.password.length >= 8 && values.password === values.confirmPassword
+    );
+  }
+
+  const value = values[step.key];
+
+  if (step.key === "heightCm" || step.key === "currentWeightKg") {
     const number = Number(value);
 
     return Number.isFinite(number) && number > 0;
@@ -358,6 +425,7 @@ function buildInitialValues(
   member: MemberOnboardingRecord | null,
 ): OnboardingValues {
   return {
+    confirmPassword: "",
     currentWeightKg: stringifyNumber(
       member?.current_weight_kg ?? member?.initial_weight_kg,
     ),
@@ -367,16 +435,22 @@ function buildInitialValues(
     goal: member?.goal ?? "Salud general",
     groupId: member?.group_id ?? "",
     heightCm: stringifyNumber(member?.height_cm),
+    password: "",
     phone: member?.phone ?? "",
   };
 }
 
-function getInitialStepIndex(values: OnboardingValues) {
+function getInitialStepIndex(
+  values: OnboardingValues,
+  steps: OnboardingStep[],
+) {
   const firstIncompleteStep = steps.findIndex(
-    (step) => !isStepValid(step.key, values[step.key], step.optional),
+    (step) => !isStepValid(step, values),
   );
 
-  return firstIncompleteStep === -1 ? steps.length - 1 : firstIncompleteStep;
+  return firstIncompleteStep === -1
+    ? Math.max(0, steps.length - 1)
+    : firstIncompleteStep;
 }
 
 function stringifyNumber(value: number | null | undefined) {

@@ -15,12 +15,15 @@ const goals = new Set([
 const genders = new Set(["", "woman", "man", "non_binary", "other", "prefer_not"]);
 
 export async function completeOnboarding(formData: FormData) {
-  const { user } = await requireUser();
+  const { supabase: userSupabase, user } = await requireUser();
 
   if (!hasSupabaseAdminConfig()) {
-    redirect("/onboarding?notice=missing_supabase_admin");
+    redirectWithNotice("missing_supabase_admin", false);
   }
 
+  const shouldSetPassword = formData.get("passwordSetup") === "true";
+  const password = String(formData.get("password") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
   const fullName = requiredText(formData.get("fullName"));
   const phone = requiredText(formData.get("phone"));
   const dateOfBirth = requiredText(formData.get("dateOfBirth"));
@@ -40,7 +43,26 @@ export async function completeOnboarding(formData: FormData) {
     heightCm === null ||
     currentWeightKg === null
   ) {
-    redirect("/onboarding?notice=invalid_onboarding");
+    redirectWithNotice("invalid_onboarding", shouldSetPassword);
+  }
+
+  if (shouldSetPassword) {
+    if (password.length < 8) {
+      redirectWithNotice("password_short", shouldSetPassword);
+    }
+
+    if (password !== confirmPassword) {
+      redirectWithNotice("password_mismatch", shouldSetPassword);
+    }
+
+    const { error: passwordError } = await userSupabase.auth.updateUser({
+      password,
+    });
+
+    if (passwordError && !isSamePasswordError(passwordError)) {
+      console.error("ATLETIX onboarding password update failed", passwordError);
+      redirectWithNotice("password_update_failed", shouldSetPassword);
+    }
   }
 
   const supabase = createAdminClient();
@@ -51,7 +73,7 @@ export async function completeOnboarding(formData: FormData) {
     .maybeSingle();
 
   if (memberReadError || !member) {
-    redirect("/onboarding?notice=missing_member");
+    redirectWithNotice("missing_member", shouldSetPassword);
   }
 
   const groupValidationError = await validateTrainingGroupSelection({
@@ -61,7 +83,7 @@ export async function completeOnboarding(formData: FormData) {
   });
 
   if (groupValidationError) {
-    redirect(`/onboarding?notice=${groupValidationError}`);
+    redirectWithNotice(groupValidationError, shouldSetPassword);
   }
 
   const baselineWeightKg =
@@ -83,7 +105,7 @@ export async function completeOnboarding(formData: FormData) {
     .eq("id", member.id);
 
   if (memberError) {
-    redirect("/onboarding?notice=member_update_failed");
+    redirectWithNotice("member_update_failed", shouldSetPassword);
   }
 
   const progressError = await saveInitialProgressEntry({
@@ -93,7 +115,7 @@ export async function completeOnboarding(formData: FormData) {
   });
 
   if (progressError) {
-    redirect("/onboarding?notice=progress_update_failed");
+    redirectWithNotice("progress_update_failed", shouldSetPassword);
   }
 
   const { error: profileError } = await supabase
@@ -105,7 +127,7 @@ export async function completeOnboarding(formData: FormData) {
     .eq("id", user.id);
 
   if (profileError) {
-    redirect("/onboarding?notice=profile_update_failed");
+    redirectWithNotice("profile_update_failed", shouldSetPassword);
   }
 
   const metadata = {
@@ -123,10 +145,18 @@ export async function completeOnboarding(formData: FormData) {
   );
 
   if (authMetadataError) {
-    redirect("/onboarding?notice=profile_update_failed");
+    redirectWithNotice("profile_update_failed", shouldSetPassword);
   }
 
   redirect("/dashboard");
+}
+
+function isSamePasswordError(error: { code?: string }) {
+  return error.code === "same_password";
+}
+
+function redirectWithNotice(notice: string, passwordSetup: boolean): never {
+  redirect(`/onboarding?notice=${notice}${passwordSetup ? "&setup=1" : ""}`);
 }
 
 function requiredText(value: FormDataEntryValue | null) {

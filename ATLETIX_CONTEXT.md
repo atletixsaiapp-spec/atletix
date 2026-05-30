@@ -63,8 +63,8 @@ No payment gateways in this phase. Payments are confirmed outside the app, then 
 - `/admin/cuentas/importar` protected bulk account invite/import page
 - `/admin/lista-espera` protected waitlist queue where admins assign a group and create an invited account from a waitlist record
 - `/cuentas/[id]` protected admin account detail page
-- `/auth/confirm` Supabase token confirmation route used by invite emails before redirecting to password setup
-- `/reset-password` account password setup/reset page used after email invite confirmation
+- `/auth/confirm` Supabase token confirmation route used by invite/recovery emails before redirecting to the requested safe path
+- `/reset-password` account password reset page used by forgot-password emails
 
 ## Important Files
 
@@ -182,9 +182,9 @@ Current backend notes:
 2. Add `SUPABASE_SERVICE_ROLE_KEY` locally and in Vercel for admin reads and account creation.
 3. Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` locally and in Vercel for invite emails. The sender must be verified in Resend.
 4. Admin invite emails should use `ATLETIX_SITE_URL=https://www.atletix.co` so activation buttons never fall back to localhost.
-5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery token hash, and Resend activation email. The email button points to `/auth/confirm`, which verifies the token hash and redirects the account to `/reset-password`.
-6. Password setup auto-routes to `/onboarding`; future login/dashboard access also redirects there until required member fields are complete.
-7. Onboarding status is currently derived from existing member fields: name, phone, birth date, goal, height, and current weight. Gender is collected optionally and stored in Supabase Auth user metadata because the database schema does not yet include a `gender` column.
+5. Admin invite flow creates a Supabase Auth user, profile row, inactive member row, recovery token hash, and Resend activation email. The email button points to `/auth/confirm`, which verifies the token hash and redirects the account to `/onboarding?setup=1`.
+6. Invite onboarding starts with password creation inside the onboarding flow; future login/dashboard access redirects to `/onboarding` until required member fields are complete.
+7. Onboarding status is currently derived from existing member fields: name, phone, birth date, goal, group, height, and current weight. Gender is collected optionally and stored in Supabase Auth user metadata because the database schema does not yet include a `gender` column.
 8. Onboarding asks for one weight value only: `Peso de hoy`. The server stores it as `members.current_weight_kg`, uses it as `members.initial_weight_kg` only when no baseline exists yet, and creates/updates the same-day `progress_entries.weight_kg` row so weight history starts in the progress table.
 9. Account detail supports manual payment insertion, membership activation/revocation, and full test/error account deletion through server actions. Manual membership revocation sets `members.is_active=false` and clears `members.group_id` so the group seat is released.
 10. Account invites store only `date_of_birth`, not age. Admin invite/import UI should ask for `Fecha de nacimiento`; do not show or request `EDAD`.

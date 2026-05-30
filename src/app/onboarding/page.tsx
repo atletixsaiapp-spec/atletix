@@ -47,6 +47,18 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
     body: "No se pudo actualizar tu perfil de acceso.",
     tone: "warning",
   },
+  password_mismatch: {
+    body: "Las contraseñas no coinciden.",
+    tone: "error",
+  },
+  password_short: {
+    body: "Tu contraseña debe tener al menos 8 caracteres.",
+    tone: "error",
+  },
+  password_update_failed: {
+    body: "No pudimos guardar tu contraseña. Abre de nuevo el enlace del correo.",
+    tone: "error",
+  },
   progress_update_failed: {
     body: "No se pudo guardar tu primera medición de progreso.",
     tone: "warning",
@@ -68,9 +80,9 @@ const noticeCopy: Record<string, { body: string; tone: "success" | "warning" | "
 export default async function OnboardingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ notice?: string }>;
+  searchParams: Promise<{ notice?: string; setup?: string }>;
 }) {
-  const [{ member }, { notice }] = await Promise.all([
+  const [{ member }, { notice, setup }] = await Promise.all([
     requireOnboardingUser(),
     searchParams,
   ]);
@@ -112,6 +124,7 @@ export default async function OnboardingPage({
           <OnboardingForm
             action={completeOnboarding}
             member={member}
+            passwordSetup={setup === "1"}
             trainingGroups={groups.groups}
           />
         </div>

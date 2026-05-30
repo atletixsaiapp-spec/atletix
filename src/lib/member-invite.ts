@@ -119,7 +119,7 @@ export async function inviteMember(
     recoveryLink.properties.hashed_token,
   );
   activationUrl.searchParams.set("type", "recovery");
-  activationUrl.searchParams.set("next", "/reset-password");
+  activationUrl.searchParams.set("next", "/onboarding?setup=1");
 
   try {
     await sendWelcomeEmail({
