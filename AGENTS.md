@@ -16,3 +16,9 @@ Before working on this repo, read `ATLETIX_CONTEXT.md`.
 - Prefer reusing existing shared UI components before creating page-local components.
 
 Never commit `.env.local`; it contains local Supabase/Vercel credentials.
+
+## Local Secrets And Deployment
+
+- When pushing to GitHub, first check `.env.local` for `GITHUB_PUSH_TOKEN` and use it without printing it. The default GitHub CLI account may not have write access to this repo.
+- A safe push pattern is to source `.env.local`, build a temporary HTTPS auth header from `GITHUB_PUSH_TOKEN`, and run `git push origin main`. Do not store the token in git config, logs, source files, or committed docs.
+- If Vercel deployment status is needed, use `VERCEL_TOKEN` from `.env.local` and keep the token redacted.
